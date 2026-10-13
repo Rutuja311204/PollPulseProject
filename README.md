@@ -29,11 +29,12 @@ PollPulse is a web-based survey platform built using Django and MongoDB. It help
 5. Start the application using `run_windows.bat`.
 6. Open http://127.0.0.1:8000/
 
+
 ## Documentation
 
-- [Interview Guide](INTERVIEW_GUIDE.md)
 - [API Documentation](docs/API.md)
 - [Deployment Guide](docs/DEPLOYMENT.md)
+
 
 ## Author
 
