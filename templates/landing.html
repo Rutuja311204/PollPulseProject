@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Survey builder with explainable analytics{% endblock %}
+{% block body %}
+<div class="container">
+  <header class="site-nav">
+    <a class="brand" href="{% url 'landing' %}">{% include "partials/_logo.html" %}PollPulse</a>
+    <nav aria-label="Main">
+      <a class="plain d-none d-md-inline" href="#difference">Why PollPulse</a>
+      <a class="plain d-none d-md-inline" href="#types">Question types</a>
+      {% if user.is_authenticated %}
+        <a class="btn btn-primary" href="{% url 'surveys:dashboard' %}">Open dashboard</a>
+      {% else %}
+        <a class="plain" href="{% url 'accounts:login' %}">Sign in</a>
+        <a class="btn btn-primary" href="{% url 'accounts:register' %}">Create account</a>
+      {% endif %}
+    </nav>
+  </header>
+</div>
+
+<main id="main">
+  <section class="hero">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-7">
+          <h1 class="hero-title">Surveys that explain their own results.</h1>
+          <p class="hero-lede">PollPulse checks your wording before you publish, validates every answer by its question type, and turns responses into analytics where each number shows how it was calculated.</p>
+          <div class="d-flex flex-wrap gap-2">
+            {% if user.is_authenticated %}
+              <a class="btn btn-primary btn-lg" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>Create a survey</a>
+            {% else %}
+              <a class="btn btn-primary btn-lg" href="{% url 'accounts:register' %}">Create a free account</a>
+              <a class="btn btn-ghost btn-lg" href="{% url 'accounts:login' %}">Sign in</a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="demo-card" id="demo-poll" data-start="[0, 0, 0]">
+            <span class="demo-tag">Try it: each tap adds a vote. Sample data, kept only in this tab.</span>
+            <h2>How should the next workshop run?</h2>
+            <button class="demo-opt" type="button" data-label="In person"><span>In person</span><span class="demo-pct"></span><span class="demo-track"><span class="demo-fill"></span></span></button>
+            <button class="demo-opt" type="button" data-label="Online"><span>Online</span><span class="demo-pct"></span><span class="demo-track"><span class="demo-fill"></span></span></button>
+            <button class="demo-opt" type="button" data-label="Hybrid"><span>Hybrid</span><span class="demo-pct"></span><span class="demo-track"><span class="demo-fill"></span></span></button>
+            <div class="demo-foot"><span data-total aria-live="polite"></span><button type="button" data-reset>Reset</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-section" id="difference">
+    <div class="container">
+      <h2>What a basic form builder leaves to you</h2>
+      <p class="section-lede mb-4">Collecting answers is the easy part. PollPulse helps with the parts before and after.</p>
+      <div class="table-wrap">
+        <table class="compare-table">
+          <thead><tr><th scope="col">Stage</th><th scope="col">Typical basic form</th><th scope="col">PollPulse</th></tr></thead>
+          <tbody>
+            <tr><td>Writing questions</td><td class="basic">Whatever you type is published.</td><td>A quality checker flags leading and double-barrelled wording, near-duplicate questions, missing “Other” choices and mixed rating scales before you publish.</td></tr>
+            <tr><td>Question types</td><td class="basic">Mostly text and multiple choice.</td><td>Twelve types with their own rules: selection limits, rating and scale ranges, number limits, date windows, email format, and rankings that reject repeated positions.</td></tr>
+            <tr><td>Collecting</td><td class="basic">One page, open until you remember to close it.</td><td>Opening and closing dates, response limits, one-question-at-a-time mode, save and resume, and duplicate protection per browser or per account.</td></tr>
+            <tr><td>Reading results</td><td class="basic">Counts and pie charts.</td><td>Completion rate, time to complete, averages and distributions, ranking scores, cross-tabulation with a chi-square test, and keyword and tone summaries for written answers.</td></tr>
+            <tr><td>Trusting the numbers</td><td class="basic">You work out what a percentage means.</td><td>Every metric is defined on the page, and the written summary is produced by fixed rules from those numbers.</td></tr>
+            <tr><td>Working together</td><td class="basic">Share an edit link.</td><td>Owner, editor and viewer roles per survey, plus an admin panel with moderation and an audit log.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-section pt-0" id="types">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-5">
+          <h2>Twelve question types, each validated on the server</h2>
+          <p class="section-lede">The browser helps respondents, but the server checks every answer again, so a tampered form cannot store an option that does not exist.</p>
+          <div class="mini-issue"><i class="bi bi-exclamation-triangle-fill"></i><div><strong>Quality check example.</strong> “Don't you agree the library should always stay open late?” — This question may be leading, and “always” makes it hard to answer honestly.</div></div>
+        </div>
+        <div class="col-lg-7">
+          <div class="row row-cols-1 row-cols-sm-2 g-0">
+            <div class="col capability"><h3><i class="bi bi-ui-radios me-2 text-primary"></i>Single and multiple choice</h3><p>Optional “Other” with text, minimum and maximum selections.</p></div>
+            <div class="col capability"><h3><i class="bi bi-star-half me-2 text-primary"></i>Rating and linear scale</h3><p>Stars from 1–3 up to 1–10, or numbered scales from 0 or 1 with end labels.</p></div>
+            <div class="col capability"><h3><i class="bi bi-sort-numeric-down me-2 text-primary"></i>Ranking</h3><p>Order items by preference; results show average rank and a Borda score.</p></div>
+            <div class="col capability"><h3><i class="bi bi-123 me-2 text-primary"></i>Number and date</h3><p>Minimum, maximum and whole-number rules; earliest and latest dates.</p></div>
+            <div class="col capability"><h3><i class="bi bi-text-paragraph me-2 text-primary"></i>Short and long text</h3><p>Length limits, plus keyword, topic and tone summaries in analytics.</p></div>
+            <div class="col capability"><h3><i class="bi bi-envelope-at me-2 text-primary"></i>Email, dropdown, yes/no</h3><p>Format-checked email, long option lists, and quick binary questions.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container d-flex flex-wrap justify-content-between gap-3">
+    <span>PollPulse — an MCA Python case study by Rutuja Yashwant Divate (Roll No. 15).</span>
+    <span class="d-flex gap-3">{% if contact_email %}<a href="mailto:{{ contact_email }}">Contact</a>{% endif %}<a href="{% url 'health' %}">System status</a></span>
+  </div>
+</footer>
+{% endblock %}

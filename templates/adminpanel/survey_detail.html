@@ -1,0 +1,47 @@
+{% extends "adminpanel/base.html" %}
+{% block title %}Moderate · {{ survey.title }}{% endblock %}
+{% block crumb %}<a class="crumb" href="{% url 'adminpanel:surveys' %}"><i class="bi bi-arrow-left"></i>Survey moderation</a>{% endblock %}
+{% block page_title %}{{ survey.title }}{% endblock %}
+{% block lede %}<div class="d-flex gap-2 align-items-center mt-2">{% include "partials/_status.html" %}<span class="small-print">Owner <a href="{% url 'adminpanel:user_detail' survey.owner_id %}">{{ survey.owner_username }}</a> · {{ survey.response_count }} responses · created {{ survey.created_at|date:"d M Y" }}</span></div>{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-8">
+    <section class="panel">
+      <div class="panel-head"><h2>Content</h2><span class="muted">Read-only. Individual responses are not shown to administrators here.</span></div>
+      <div class="panel-body">
+        {% if survey.description %}<p class="pre-line">{{ survey.description }}</p>{% endif %}
+        <ol class="ps-3 mb-0">{% for q in survey.questions %}
+          <li class="mb-3"><strong>{{ q.title|default:"(empty question)" }}</strong> <span class="small-print">{{ q.type }}</span>
+            {% if q.description %}<div class="small-print pre-line">{{ q.description }}</div>{% endif %}
+            {% if q.options %}<div class="small">{% for o in q.options %}{{ o.text }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}</li>
+        {% empty %}<li class="muted">No questions.</li>{% endfor %}</ol>
+      </div>
+    </section>
+  </div>
+  <div class="col-xl-4 stack">
+    <section class="panel panel-pad">
+      <h2 class="section-title">Moderation</h2>
+      {% if survey.suspended %}
+        <p><span class="status status-suspended">Suspended</span> by {{ survey.moderation.by }} on {{ survey.moderation.at|date:"d M Y" }}</p>
+        <p class="small">{{ survey.moderation.reason }}</p>
+        <form method="post" action="{% url 'adminpanel:survey_moderate' survey.id %}">{% csrf_token %}<input type="hidden" name="action" value="unsuspend">
+          <button class="btn btn-primary w-100" type="submit">Lift suspension</button></form>
+      {% else %}
+        <form method="post" action="{% url 'adminpanel:survey_moderate' survey.id %}" data-confirm="Suspend this survey? Respondents will not be able to open it.">
+          {% csrf_token %}<input type="hidden" name="action" value="suspend">
+          <label class="form-label" for="reason">Reason (shown to the owner)</label>
+          <textarea class="form-control mb-2" id="reason" name="reason" rows="3" maxlength="300" required placeholder="e.g. Collects personal data without consent"></textarea>
+          <button class="btn btn-outline-danger w-100" type="submit"><i class="bi bi-slash-circle"></i>Suspend survey</button>
+        </form>
+      {% endif %}
+      {% if survey.status != 'archived' %}
+      <form method="post" action="{% url 'adminpanel:survey_moderate' survey.id %}" class="mt-2" data-confirm="Archive this survey? It stops accepting responses.">
+        {% csrf_token %}<input type="hidden" name="action" value="archive"><button class="btn btn-ghost w-100" type="submit"><i class="bi bi-archive"></i>Archive survey</button></form>
+      {% endif %}
+      <p class="small-print mt-3 mb-0">Suspension hides the survey from respondents and blocks publishing until lifted. Archiving stops responses; the owner can restore it later. Both actions are audited.</p>
+    </section>
+    <section class="panel"><div class="panel-head"><h2>History</h2></div>
+      <div class="panel-body py-2"><ul class="list-plain">{% for e in history %}<li><span>{{ e.label }} <span class="muted">by {{ e.actor_username|default:"system" }}</span></span><span class="small-print">{{ e.created_at|date:"d M, H:i" }}</span></li>{% empty %}<li class="muted">No recorded actions.</li>{% endfor %}</ul></div></section>
+  </div>
+</div>
+{% endblock %}

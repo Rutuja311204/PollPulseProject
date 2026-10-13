@@ -1,0 +1,40 @@
+{% extends "app_base.html" %}
+{% block title %}New survey{% endblock %}
+{% block crumb %}<a class="crumb" href="{% url 'surveys:list' %}"><i class="bi bi-arrow-left"></i>Surveys</a>{% endblock %}
+{% block page_title %}New survey{% endblock %}
+{% block lede %}<p class="lede">Name your survey. You will add questions in the builder next; it stays a draft until you publish.</p>{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <form method="post" class="panel panel-pad" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_errors.html" %}
+      {% include "partials/_field.html" with field=form.title %}
+      {% include "partials/_field.html" with field=form.description %}
+      <fieldset class="mb-3">
+        <legend class="form-label">How do you want to start?</legend>
+        {% for radio in form.start %}
+        <div class="form-check mb-2">{{ radio.tag }}<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>
+        {% endfor %}
+      </fieldset>
+      <div class="border rounded-3 p-3 mb-3" data-show-when="id_start_1">
+        <p class="small-print mb-3">{% if ai_enabled %}Suggestions come from the configured AI service, with built-in templates as a fallback.{% else %}No AI service is configured, so suggestions come from built-in templates matched to your topic.{% endif %} You can edit or remove every suggested question.</p>
+        {% include "partials/_field.html" with field=form.topic %}
+        {% include "partials/_field.html" with field=form.objective %}
+      </div>
+      <button class="btn btn-primary btn-lg" type="submit">Create draft</button>
+    </form>
+  </div>
+  <div class="col-lg-4">
+    <div class="panel panel-pad">
+      <h2 class="section-title">What happens next</h2>
+      <ol class="ps-3 mb-0 text-secondary">
+        <li class="mb-2">Add and order questions in the builder; the preview shows what respondents see.</li>
+        <li class="mb-2">Set dates, limits and duplicate protection in Settings.</li>
+        <li class="mb-2">Publish. The quality checker blocks surveys that would not work and lists wording suggestions.</li>
+        <li>Share the link and follow results in Analytics.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

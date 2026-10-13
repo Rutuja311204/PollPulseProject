@@ -1,0 +1,30 @@
+{% load pp %}
+<aside class="rail offcanvas-lg offcanvas-start" tabindex="-1" id="rail" aria-label="Main navigation">
+  <div class="rail-inner">
+    <div class="d-flex justify-content-between align-items-center">
+      <a class="brand" href="{% url 'surveys:dashboard' %}">{% include "partials/_logo.html" %}PollPulse</a>
+      <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#rail" aria-label="Close navigation"></button>
+    </div>
+    <a class="btn new-btn" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>New survey</a>
+    <nav class="rail-group" aria-label="Workspace">
+      <a class="rail-link {% if nav == 'dashboard' %}active{% endif %}" href="{% url 'surveys:dashboard' %}"><i class="bi bi-grid-1x2"></i>Dashboard</a>
+      <a class="rail-link {% if nav == 'surveys' %}active{% endif %}" href="{% url 'surveys:list' %}"><i class="bi bi-ui-checks"></i>Surveys</a>
+      <a class="rail-link {% if nav == 'reports' %}active{% endif %}" href="{% url 'surveys:reports_index' %}"><i class="bi bi-file-earmark-bar-graph"></i>Reports</a>
+      <a class="rail-link {% if nav == 'compare' %}active{% endif %}" href="{% url 'surveys:compare' %}"><i class="bi bi-layout-split"></i>Compare</a>
+    </nav>
+    <nav class="rail-group" aria-label="Account">
+      <span class="rail-group-title">Account</span>
+      <a class="rail-link {% if nav == 'profile' %}active{% endif %}" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i>Profile and settings</a>
+      {% if is_platform_admin %}
+      <a class="rail-link" href="{% url 'adminpanel:dashboard' %}"><i class="bi bi-shield-lock"></i>Admin panel</a>
+      {% endif %}
+    </nav>
+    <div class="rail-user">
+      <div class="avatar">{{ user|initial }}</div>
+      <div class="who"><strong>{{ user.first_name|default:user.username }}</strong>@{{ user.username }}</div>
+      <form method="post" action="{% url 'accounts:logout' %}" class="m-0">{% csrf_token %}
+        <button class="icon-btn" type="submit" title="Sign out" aria-label="Sign out"><i class="bi bi-box-arrow-right"></i></button>
+      </form>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,26 @@
+{% load pp %}
+<aside class="rail admin-rail offcanvas-lg offcanvas-start" tabindex="-1" id="rail" aria-label="Admin navigation">
+  <div class="rail-inner">
+    <div class="d-flex justify-content-between align-items-center">
+      <a class="brand" href="{% url 'adminpanel:dashboard' %}">{% include "partials/_logo.html" %}Admin</a>
+      <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#rail" aria-label="Close navigation"></button>
+    </div>
+    <nav class="rail-group" aria-label="Administration">
+      <a class="rail-link {% if anav == 'dashboard' %}active{% endif %}" href="{% url 'adminpanel:dashboard' %}"><i class="bi bi-speedometer2"></i>Overview</a>
+      <a class="rail-link {% if anav == 'users' %}active{% endif %}" href="{% url 'adminpanel:users' %}"><i class="bi bi-people"></i>Users</a>
+      <a class="rail-link {% if anav == 'surveys' %}active{% endif %}" href="{% url 'adminpanel:surveys' %}"><i class="bi bi-flag"></i>Survey moderation</a>
+      <a class="rail-link {% if anav == 'audit' %}active{% endif %}" href="{% url 'adminpanel:audit' %}"><i class="bi bi-journal-text"></i>Audit log</a>
+      <a class="rail-link {% if anav == 'settings' %}active{% endif %}" href="{% url 'adminpanel:settings' %}"><i class="bi bi-sliders"></i>Platform settings</a>
+    </nav>
+    <nav class="rail-group" aria-label="Back">
+      <a class="rail-link" href="{% url 'surveys:dashboard' %}"><i class="bi bi-arrow-left-circle"></i>Back to my surveys</a>
+    </nav>
+    <div class="rail-user">
+      <div class="avatar">{{ user|initial }}</div>
+      <div class="who"><strong>{{ user.username }}</strong>{% if user.is_superuser %}Superuser{% else %}Administrator{% endif %}</div>
+      <form method="post" action="{% url 'accounts:logout' %}" class="m-0">{% csrf_token %}
+        <button class="icon-btn" type="submit" title="Sign out" aria-label="Sign out"><i class="bi bi-box-arrow-right"></i></button>
+      </form>
+    </div>
+  </div>
+</aside>

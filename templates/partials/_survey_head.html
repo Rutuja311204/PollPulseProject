@@ -1,0 +1,47 @@
+{% comment %} Header shared by every survey page: title, status and the actions this user's role allows. {% endcomment %}
+<div class="page-head">
+  <div>
+    <a class="crumb" href="{% url 'surveys:list' %}"><i class="bi bi-arrow-left"></i>Surveys</a>
+    <h1>{{ survey.title }}</h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+      {% include "partials/_status.html" %}
+      {% if survey.role != 'owner' %}<span class="role-chip">You are {{ survey.role }}</span>{% endif %}
+      {% if survey.status == 'published' and not survey.accepting and not survey.suspended %}<span class="small-print">{{ survey.closed_message }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="{% url 'surveys:preview' survey.id %}" target="_blank" rel="noopener"><i class="bi bi-eye"></i>Preview</a>
+    {% if survey.can.publish and survey.status != 'archived' %}
+      {% if survey.status == 'published' %}
+      <form method="post" action="{% url 'surveys:close' survey.id %}" data-confirm="Close this survey? Respondents will no longer be able to answer.">{% csrf_token %}
+        <button class="btn btn-ghost" type="submit"><i class="bi bi-lock"></i>Close</button></form>
+      {% else %}
+      <form method="post" action="{% url 'surveys:publish' survey.id %}">{% csrf_token %}
+        <button class="btn btn-primary" type="submit" {% if survey.suspended %}disabled{% endif %}><i class="bi bi-send"></i>{% if survey.status == 'closed' %}Reopen{% else %}Publish{% endif %}</button></form>
+      {% endif %}
+    {% endif %}
+    {% if survey.can.duplicate or survey.can.archive or survey.can.delete %}
+    <div class="dropdown">
+      <button class="btn btn-ghost" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions"><i class="bi bi-three-dots"></i></button>
+      <div class="dropdown-menu dropdown-menu-end p-1">
+        {% if survey.can.duplicate %}
+        <form method="post" action="{% url 'surveys:duplicate' survey.id %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-copy me-2"></i>Duplicate as new draft</button></form>
+        {% endif %}
+        {% if survey.can.archive %}
+          {% if survey.status == 'archived' %}
+          <form method="post" action="{% url 'surveys:restore' survey.id %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-up me-2"></i>Restore from archive</button></form>
+          {% else %}
+          <form method="post" action="{% url 'surveys:archive' survey.id %}" data-confirm="Archive this survey? It stops accepting responses and is hidden from your list.">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-archive me-2"></i>Archive</button></form>
+          {% endif %}
+        {% endif %}
+        {% if survey.can.delete %}
+        <a class="dropdown-item text-danger" href="{% url 'surveys:delete' survey.id %}"><i class="bi bi-trash3 me-2"></i>Delete</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% if survey.suspended %}
+<div class="alert alert-danger"><strong>Suspended by an administrator.</strong> {{ survey.moderation.reason }} Respondents cannot open this survey.</div>
+{% endif %}

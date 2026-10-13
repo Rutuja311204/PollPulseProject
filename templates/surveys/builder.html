@@ -1,0 +1,66 @@
+{% extends "app_base.html" %}
+{% load static %}
+{% block title %}Questions · {{ survey.title }}{% endblock %}
+{% block page_head %}{% include "partials/_survey_head.html" %}{% endblock %}
+{% block tabs %}{% include "partials/_survey_tabs.html" with tab="builder" %}{% endblock %}
+{% block content %}
+<div id="builder-root">
+  <div class="builder-toolbar">
+    <span class="save-state" id="save-state" aria-live="polite"><i class="bi bi-cloud-check"></i>All changes saved</span>
+    <div class="dropdown" data-edit-only>
+      <button class="btn btn-ghost" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="add-question-btn"><i class="bi bi-plus-lg"></i>Add question</button>
+      <div class="dropdown-menu dropdown-menu-end"><div class="type-menu" id="type-menu" role="menu" aria-labelledby="add-question-btn"></div></div>
+    </div>
+    <button class="btn btn-ghost" type="button" data-edit-only data-bs-toggle="modal" data-bs-target="#suggest-modal"><i class="bi bi-magic"></i>Suggest questions</button>
+    <button class="btn btn-ghost" type="button" id="save-btn" data-edit-only><i class="bi bi-floppy"></i>Save draft</button>
+    <a class="btn btn-ghost" href="{% url 'surveys:preview' survey.id %}" target="_blank" rel="noopener"><i class="bi bi-eye"></i>Full preview</a>
+  </div>
+
+  <div id="locked-note" class="locked-note d-none"><i class="bi bi-lock-fill"></i><div><strong>Questions are locked.</strong> <span id="locked-reason"></span></div></div>
+  <div id="builder-errors" class="alert alert-danger d-none" role="alert"></div>
+
+  <div class="builder">
+    <div>
+      <div id="question-list" aria-label="Questions"></div>
+      <div id="builder-empty" class="builder-empty d-none">
+        <p class="mb-3">This survey has no questions yet.</p>
+        <button class="btn btn-primary" type="button" data-add-type="single_choice" data-edit-only><i class="bi bi-plus-lg"></i>Add a single-choice question</button>
+      </div>
+    </div>
+    <aside class="side-sticky stack">
+      <section class="panel">
+        <div class="panel-head"><h2>Live preview</h2><span class="muted" id="preview-label">Selected question</span></div>
+        <div class="panel-body"><div class="preview-frame" id="preview"></div></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Quality check</h2><span class="muted num" id="issue-count"></span></div>
+        <div class="panel-body py-2" id="issues"></div>
+        <div class="panel-body pt-0"><p class="method-note mb-0">Updated each time you save. Red items block publishing; amber and blue items are rule-based suggestions.</p></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div class="modal fade" id="suggest-modal" tabindex="-1" aria-labelledby="suggest-title" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title h5" id="suggest-title">Suggest questions</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <form id="suggest-form" class="row g-2 align-items-end mb-3">
+          <div class="col-md-5"><label class="form-label" for="suggest-topic">Topic</label>
+            <input class="form-control" id="suggest-topic" maxlength="120" required placeholder="e.g. Python workshop"></div>
+          <div class="col-md-5"><label class="form-label" for="suggest-objective">What do you want to learn?</label>
+            <input class="form-control" id="suggest-objective" maxlength="300" placeholder="Optional"></div>
+          <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Suggest</button></div>
+        </form>
+        <p class="small-print" id="suggest-note">{% if builder_data.aiEnabled %}Uses the configured AI service; falls back to built-in templates if it does not respond.{% else %}No AI service is configured. Suggestions come from built-in templates chosen by keywords in your topic.{% endif %}</p>
+        <div id="suggest-results"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="button" id="suggest-add-all" disabled>Add all</button></div>
+    </div>
+  </div>
+</div>
+{{ builder_data|json_script:"builder-data" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/builder.js' %}"></script>{% endblock %}

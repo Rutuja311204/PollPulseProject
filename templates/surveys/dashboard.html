@@ -1,0 +1,92 @@
+{% extends "app_base.html" %}
+{% load static pp %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block lede %}<p class="lede">Your surveys and the responses they have collected.</p>{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>New survey</a>{% endblock %}
+
+{% block content %}
+{% if announcement %}<div class="announcement"><i class="bi bi-megaphone-fill"></i><span>{{ announcement }}</span></div>{% endif %}
+
+{% if stats.total %}
+<div class="metrics mb-4">
+  <div class="metric accent"><div class="metric-value">{{ stats.responses }}</div><div class="metric-label">Responses collected</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.total }}</div><div class="metric-label">Surveys</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.published }}</div><div class="metric-label">Published</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.draft }}</div><div class="metric-label">Drafts</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.closed }}</div><div class="metric-label">Closed</div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8">
+    <section class="panel h-100">
+      <div class="panel-head"><h2>Responses per day</h2><span class="muted">Last 30 days, all your surveys</span></div>
+      <div class="panel-body"><div class="chart-box"><canvas id="trend-chart" role="img" aria-label="Responses per day over the last 30 days"></canvas></div></div>
+    </section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel h-100">
+      <div class="panel-head"><h2>Quick actions</h2></div>
+      <div class="panel-body">
+        <ul class="list-plain">
+          <li><a class="list-link" href="{% url 'surveys:create' %}"><i class="bi bi-plus-square me-2 text-primary"></i>Create a survey</a></li>
+          {% with latest=stats.recent.0 %}{% if latest %}
+          <li><a class="list-link text-truncate" href="{% url 'surveys:builder' latest.id %}"><i class="bi bi-pencil-square me-2 text-primary"></i>Continue editing “{{ latest.title|truncatechars:28 }}”</a></li>
+          {% if latest.can.duplicate %}
+          <li><form method="post" action="{% url 'surveys:duplicate' latest.id %}" class="m-0">{% csrf_token %}
+            <button class="btn btn-quiet p-0 list-link text-truncate" type="submit"><i class="bi bi-copy me-2 text-primary"></i>Duplicate “{{ latest.title|truncatechars:28 }}”</button></form></li>
+          {% endif %}{% endif %}{% endwith %}
+          {% with top=stats.top.0 %}{% if top %}
+          <li><a class="list-link text-truncate" href="{% url 'surveys:analytics' top.id %}"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Analyze “{{ top.title|truncatechars:28 }}”</a></li>
+          {% endif %}{% endwith %}
+          <li><a class="list-link" href="{% url 'surveys:compare' %}"><i class="bi bi-layout-split me-2 text-primary"></i>Compare two surveys</a></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    <section class="panel">
+      <div class="panel-head"><h2>Recently updated</h2><a class="small fw-semibold" href="{% url 'surveys:list' %}">All surveys</a></div>
+      {% include "surveys/_survey_table.html" with surveys=stats.recent %}
+    </section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel mb-4">
+      <div class="panel-head"><h2>Most responses</h2></div>
+      <div class="panel-body py-2">
+        <ul class="list-plain">
+          {% for s in stats.top %}
+          <li><a class="list-link text-truncate" href="{% url 'surveys:analytics' s.id %}">{{ s.title }}</a><span class="count-chip num">{{ s.response_count }}</span></li>
+          {% empty %}<li class="muted">No responses yet. Publish a survey and share its link.</li>{% endfor %}
+        </ul>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Your recent activity</h2></div>
+      <div class="panel-body py-2">
+        <ul class="list-plain">
+          {% for e in activity %}
+          <li><span>{{ e.label }}{% if e.details.title %} <span class="muted">“{{ e.details.title|truncatechars:26 }}”</span>{% endif %}</span><span class="small-print text-nowrap">{{ e.created_at|timesince }} ago</span></li>
+          {% empty %}<li class="muted">Nothing yet.</li>{% endfor %}
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+{{ trend|json_script:"trend-data" }}
+{% else %}
+<div class="panel empty">
+  <div class="empty-mark"><i class="bi bi-clipboard2-plus"></i></div>
+  <h2>Create your first survey</h2>
+  <p>Pick from twelve question types, check the wording with the quality checker, then share one link. Results appear here as responses arrive.</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>Create a survey</a>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock %}

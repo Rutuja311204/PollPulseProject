@@ -1,0 +1,32 @@
+{% extends "adminpanel/base.html" %}
+{% block title %}Survey moderation{% endblock %}
+{% block page_title %}Survey moderation{% endblock %}
+{% block lede %}<p class="lede">Review surveys across the platform and suspend or archive any that break platform policy.</p>{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar" role="search">
+  <div class="input-icon grow"><i class="bi bi-search"></i><input class="form-control" type="search" name="q" value="{{ filters.q }}" placeholder="Search by title" aria-label="Search surveys"></div>
+  <select class="form-select" name="status" aria-label="Status"><option value="">Any status</option>
+    <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>Draft</option>
+    <option value="published" {% if filters.status == 'published' %}selected{% endif %}>Published</option>
+    <option value="closed" {% if filters.status == 'closed' %}selected{% endif %}>Closed</option>
+    <option value="archived" {% if filters.status == 'archived' %}selected{% endif %}>Archived</option></select>
+  <select class="form-select" name="moderation" aria-label="Moderation"><option value="">Any moderation state</option>
+    <option value="suspended" {% if filters.moderation == 'suspended' %}selected{% endif %}>Suspended only</option></select>
+  <button class="btn btn-primary" type="submit">Apply</button>
+  {% if filters.q or filters.status or filters.moderation %}<a class="btn btn-quiet" href="{% url 'adminpanel:surveys' %}">Clear</a>{% endif %}
+</form>
+<section class="panel">
+  {% if surveys %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Survey</th><th>Owner</th><th>Status</th><th class="num">Responses</th><th>Created</th></tr></thead>
+    <tbody>{% for survey in surveys %}<tr>
+      <td class="title-cell"><a href="{% url 'adminpanel:survey_detail' survey.id %}">{{ survey.title }}</a></td>
+      <td><a href="{% url 'adminpanel:user_detail' survey.owner_id %}">{{ survey.owner_username }}</a></td>
+      <td>{% include "partials/_status.html" %}</td>
+      <td class="num">{{ survey.response_count }}</td>
+      <td class="small-print text-nowrap">{{ survey.created_at|date:"d M Y" }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include "partials/_pager.html" %}
+  {% else %}<div class="empty"><div class="empty-mark"><i class="bi bi-flag"></i></div><h2>No surveys match</h2><p>Try another search or clear the filters.</p></div>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "errors/_error_base.html" %}
+{% block title %}Not found{% endblock %}
+{% block error %}
+<div class="mark-big neutral"><i class="bi bi-signpost-split"></i></div>
+<h1>Page not found</h1>
+<p>The link may be mistyped, or the survey was deleted or is not shared with you.</p>
+<a class="btn btn-primary mt-2" href="{% if user.is_authenticated %}{% url 'surveys:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">Go to {% if user.is_authenticated %}your dashboard{% else %}the home page{% endif %}</a>
+{% endblock %}

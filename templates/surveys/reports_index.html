@@ -1,0 +1,23 @@
+{% extends "app_base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports and exports{% endblock %}
+{% block lede %}<p class="lede">Download responses, analytics summaries and printable reports for any survey you can access.</p>{% endblock %}
+{% block content %}
+{% if surveys %}
+<section class="panel"><div class="table-wrap"><table class="data-table">
+  <thead><tr><th>Survey</th><th>Status</th><th class="num">Responses</th><th class="text-end">Exports</th></tr></thead>
+  <tbody>{% for survey in surveys %}<tr>
+    <td class="title-cell"><a href="{% url 'surveys:reports' survey.id %}">{{ survey.title }}</a></td>
+    <td>{% include "partials/_status.html" %}</td>
+    <td class="num">{{ survey.response_count }}</td>
+    <td class="text-end text-nowrap">
+      <a class="btn btn-ghost btn-sm" href="{% url 'surveys:export_responses' survey.id %}">Responses CSV</a>
+      <a class="btn btn-ghost btn-sm" href="{% url 'surveys:export_analytics' survey.id %}">Analytics CSV</a>
+      <a class="btn btn-quiet btn-sm" href="{% url 'surveys:print_report' survey.id %}" target="_blank" rel="noopener">Print</a>
+    </td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% else %}
+<div class="panel empty"><div class="empty-mark"><i class="bi bi-file-earmark-bar-graph"></i></div><h2>Nothing to report yet</h2><p>Create a survey and collect responses to download reports.</p>
+  <a class="btn btn-primary" href="{% url 'surveys:create' %}">Create a survey</a></div>
+{% endif %}
+{% endblock %}

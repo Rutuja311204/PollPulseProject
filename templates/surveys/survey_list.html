@@ -1,0 +1,53 @@
+{% extends "app_base.html" %}
+{% block title %}Surveys{% endblock %}
+{% block page_title %}Surveys{% endblock %}
+{% block lede %}<p class="lede">Every survey you own or collaborate on.</p>{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>New survey</a>{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar" role="search">
+  <div class="input-icon grow"><i class="bi bi-search"></i>
+    <input class="form-control" type="search" name="q" value="{{ filters.q }}" placeholder="Search by title" aria-label="Search by title"></div>
+  <select class="form-select" name="status" aria-label="Status">
+    <option value="">All active statuses</option>
+    <option value="draft" {% if filters.status == 'draft' %}selected{% endif %}>Draft</option>
+    <option value="published" {% if filters.status == 'published' %}selected{% endif %}>Published</option>
+    <option value="closed" {% if filters.status == 'closed' %}selected{% endif %}>Closed</option>
+    <option value="archived" {% if filters.status == 'archived' %}selected{% endif %}>Archived</option>
+  </select>
+  <select class="form-select" name="scope" aria-label="Ownership">
+    <option value="all" {% if filters.scope == 'all' %}selected{% endif %}>Owned and shared</option>
+    <option value="owned" {% if filters.scope == 'owned' %}selected{% endif %}>Owned by me</option>
+    <option value="shared" {% if filters.scope == 'shared' %}selected{% endif %}>Shared with me</option>
+  </select>
+  <select class="form-select" name="sort" aria-label="Sort">
+    <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
+    <option value="oldest" {% if filters.sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+    <option value="updated" {% if filters.sort == 'updated' %}selected{% endif %}>Recently updated</option>
+    <option value="responses" {% if filters.sort == 'responses' %}selected{% endif %}>Most responses</option>
+    <option value="title" {% if filters.sort == 'title' %}selected{% endif %}>Title A–Z</option>
+  </select>
+  <button class="btn btn-primary" type="submit">Apply</button>
+  {% if filtered %}<a class="btn btn-quiet" href="{% url 'surveys:list' %}">Clear</a>{% endif %}
+</form>
+
+{% if surveys %}
+<section class="panel">
+  {% include "surveys/_survey_table.html" %}
+  {% include "partials/_pager.html" %}
+</section>
+{% elif filtered %}
+<div class="panel empty">
+  <div class="empty-mark"><i class="bi bi-search"></i></div>
+  <h2>No surveys match these filters</h2>
+  <p>{% if filters.q %}Nothing is titled like “{{ filters.q }}”. {% endif %}Try another word or clear the filters.</p>
+  <a class="btn btn-ghost" href="{% url 'surveys:list' %}">Clear filters</a>
+</div>
+{% else %}
+<div class="panel empty">
+  <div class="empty-mark"><i class="bi bi-ui-checks"></i></div>
+  <h2>No surveys yet</h2>
+  <p>Surveys you create, and surveys others share with you, are listed here.</p>
+  <a class="btn btn-primary" href="{% url 'surveys:create' %}"><i class="bi bi-plus-lg"></i>Create a survey</a>
+</div>
+{% endif %}
+{% endblock %}

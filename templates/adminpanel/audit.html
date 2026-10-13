@@ -1,0 +1,28 @@
+{% extends "adminpanel/base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block page_title %}Audit log{% endblock %}
+{% block lede %}<p class="lede">An append-only record of important actions. Entries cannot be edited or deleted from the application.</p>{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar">
+  <select class="form-select" name="action" aria-label="Action"><option value="">All actions</option>
+    {% for key, label in actions %}<option value="{{ key }}" {% if filters.action == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <input class="form-control" style="max-width:240px" name="actor" value="{{ filters.actor }}" placeholder="Exact username" aria-label="Username">
+  <button class="btn btn-primary" type="submit">Filter</button>
+  {% if filters.action or filters.actor %}<a class="btn btn-quiet" href="{% url 'adminpanel:audit' %}">Clear</a>{% endif %}
+</form>
+<section class="panel">
+  {% if entries %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Details</th><th>IP</th></tr></thead>
+    <tbody>{% for e in entries %}<tr>
+      <td class="small-print text-nowrap">{{ e.created_at|date:"d M Y, H:i:s" }}</td>
+      <td>{{ e.actor_username|default:"anonymous" }}{% if e.actor_is_admin %} <span class="admin-badge">admin</span>{% endif %}</td>
+      <td class="text-nowrap">{{ e.label }}</td>
+      <td class="small-print">{{ e.target_type }}{% if e.target_id %} {{ e.target_id|truncatechars:14 }}{% endif %}</td>
+      <td class="small">{% for k, v in e.details.items %}<span class="muted">{{ k }}:</span> {{ v }}{% if not forloop.last %}; {% endif %}{% endfor %}</td>
+      <td class="small-print">{{ e.ip }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% include "partials/_pager.html" %}
+  {% else %}<div class="empty"><div class="empty-mark"><i class="bi bi-journal-text"></i></div><h2>No entries</h2><p>No recorded actions match these filters.</p></div>{% endif %}
+</section>
+{% endblock %}

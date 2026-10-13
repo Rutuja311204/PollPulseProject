@@ -1,0 +1,22 @@
+{% extends "surveys/respond/_outcome_base.html" %}
+{% load static %}
+{% block title %}Results · {{ survey.title }}{% endblock %}
+{% block outcome %}
+<header class="respond-header">
+  <h1>{{ survey.title }}</h1>
+  <p class="desc">Results from <strong class="num">{{ report.total_responses }}</strong> response{{ report.total_responses|pluralize }}. Written answers are not shown publicly.</p>
+</header>
+{% for q in report.questions %}
+<section class="respond-q">
+  <h2 class="h5 mb-1">{{ q.number }}. {{ q.title }}</h2>
+  <p class="q-rule">{{ q.answered }} of {{ report.total_responses }} answered{% if q.kind == 'multi' %}; several options could be chosen, so percentages add up to more than 100%{% endif %}</p>
+  {% if not q.public %}
+    <p class="muted mb-0">Not shown: {{ q.type_label|lower }} answers stay private.</p>
+  {% elif q.answered == 0 %}
+    <p class="muted mb-0">No answers yet.</p>
+  {% else %}
+    {% include "surveys/_question_result_body.html" with public=True %}
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}

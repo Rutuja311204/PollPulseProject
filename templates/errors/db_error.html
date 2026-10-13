@@ -1,0 +1,13 @@
+{% extends "errors/_error_base.html" %}
+{% block title %}Database unavailable{% endblock %}
+{% block error %}
+<div class="mark-big warn"><i class="bi bi-database-x"></i></div>
+<h1>The database is not reachable</h1>
+<p>{{ message }}</p>
+<ul class="text-start small mx-auto text-secondary" style="max-width:440px">
+  <li>On Windows press Win+R, type <code>services.msc</code>, and start <strong>MongoDB Server</strong>.</li>
+  <li>Check <code>MONGO_URI</code> in the <code>.env</code> file.</li>
+  <li>Then reload this page.</li>
+</ul>
+<a class="btn btn-primary mt-2" href="">Try again</a>
+{% endblock %}

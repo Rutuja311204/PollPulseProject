@@ -1,0 +1,9 @@
+<ul class="bar-rows">
+  {% for o in rows %}
+  <li class="bar-row {% if o.label in q.mode and q.mode|length == 1 %}leader{% endif %}">
+    <span class="bar-label">{{ o.label }}</span>
+    <span class="bar-value"><strong>{{ o.count }}</strong> · {{ o.pct }}%</span>
+    <span class="bar-track"><span class="bar-fill" style="width:{{ o.pct }}%;display:block"></span></span>
+  </li>
+  {% endfor %}
+</ul>

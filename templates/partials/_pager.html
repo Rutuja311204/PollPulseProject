@@ -1,0 +1,11 @@
+{% load pp %}
+{% if pager.total %}
+<div class="pager">
+  <span class="num">{{ pager.start }}–{{ pager.end }} of {{ pager.total }}</span>
+  <div class="d-flex gap-2">
+    {% if pager.has_prev %}<a class="btn btn-ghost" href="?{% query_replace request page=pager.prev %}">Previous</a>{% endif %}
+    <span class="align-self-center num">Page {{ pager.page }} of {{ pager.pages }}</span>
+    {% if pager.has_next %}<a class="btn btn-ghost" href="?{% query_replace request page=pager.next %}">Next</a>{% endif %}
+  </div>
+</div>
+{% endif %}

@@ -1,0 +1,3 @@
+<input class="form-control" type="date" name="q_{{ item.q.qid }}" value="{{ item.value|default:'' }}"
+  {% if item.q.config.min_date %}min="{{ item.q.config.min_date }}"{% endif %} {% if item.q.config.max_date %}max="{{ item.q.config.max_date }}"{% endif %}
+  aria-label="{{ item.q.title }}" style="max-width:220px">

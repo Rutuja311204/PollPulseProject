@@ -1,0 +1,4 @@
+<input class="form-control" type="number" name="q_{{ item.q.qid }}" value="{{ item.value|default_if_none:'' }}" inputmode="decimal"
+  step="{% if item.q.config.integer_only %}1{% else %}any{% endif %}"
+  {% if item.q.config.min_value is not None %}min="{{ item.q.config.min_value }}"{% endif %} {% if item.q.config.max_value is not None %}max="{{ item.q.config.max_value }}"{% endif %}
+  aria-label="{{ item.q.title }}" style="max-width:220px">

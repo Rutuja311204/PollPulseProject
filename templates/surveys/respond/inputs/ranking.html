@@ -1,0 +1,15 @@
+{% load pp %}
+<ol class="rank-list">
+  {% for o in item.q.options %}
+  <li class="rank-item">
+    <span class="rank-pos">{{ forloop.counter }}</span>
+    <span class="rank-label">{{ o.text }}</span>
+    <select class="form-select form-select-sm rank-select" name="q_{{ item.q.qid }}_rank_{{ o.oid }}" aria-label="Rank for {{ o.text }}">
+      <option value="">Rank</option>
+      {% for r in item.ranks %}<option value="{{ r }}" {% if item.rank_map|get_item:o.oid == r|stringformat:'s' %}selected{% endif %}>{{ r }}</option>{% endfor %}
+    </select>
+    <button type="button" class="icon-btn rank-move" data-up aria-label="Move {{ o.text }} up"><i class="bi bi-arrow-up"></i></button>
+    <button type="button" class="icon-btn rank-move" data-down aria-label="Move {{ o.text }} down"><i class="bi bi-arrow-down"></i></button>
+  </li>
+  {% endfor %}
+</ol>

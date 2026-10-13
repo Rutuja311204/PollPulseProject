@@ -1,0 +1,11 @@
+<fieldset class="respond-q {% if item.errors %}has-error{% endif %}" id="q-{{ item.q.qid }}" data-type="{{ item.q.type }}"
+  data-required="{{ item.q.required|yesno:'1,0' }}" data-min="{{ item.q.config.min_select|default:'' }}" data-max="{{ item.q.config.max_select|default:'' }}"
+  {% if item.errors %}aria-invalid="true"{% endif %} aria-describedby="q-{{ item.q.qid }}-help">
+  <legend><span class="q-index">{{ item.number }}</span><span>{{ item.q.title }}{% if item.q.required %}<span class="req" aria-hidden="true">*</span><span class="visually-hidden"> (required)</span>{% endif %}</span></legend>
+  <div id="q-{{ item.q.qid }}-help">
+    {% if item.q.description %}<p class="q-desc pre-line">{{ item.q.description }}</p>{% endif %}
+    {% if item.rules %}<p class="q-rule">{{ item.rules }}</p>{% endif %}
+  </div>
+  <div class="answer-area">{% include item.template %}</div>
+  <div class="client-errors" aria-live="polite">{% for e in item.errors %}<div class="field-error"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>{% endfor %}</div>
+</fieldset>

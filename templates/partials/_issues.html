@@ -1,0 +1,8 @@
+{% for issue in issues %}
+<div class="issue issue-{{ issue.level }}">
+  <span class="issue-icon"><i class="bi {% if issue.level == 'error' %}bi-x-lg{% elif issue.level == 'warning' %}bi-exclamation-lg{% else %}bi-lightbulb{% endif %}"></i></span>
+  <div>{% if issue.number %}<span class="q-ref">Q{{ issue.number }}</span> {% endif %}{{ issue.message }}{% if issue.suggestion %}<span class="suggestion">{{ issue.suggestion }}</span>{% endif %}</div>
+</div>
+{% empty %}
+<p class="muted mb-0"><i class="bi bi-check2-circle text-success me-1"></i>No issues found by the quality checker.</p>
+{% endfor %}

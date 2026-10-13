@@ -1,0 +1,13 @@
+# PollPulse dependencies — install with:  pip install -r requirements.txt
+# Tested with Python 3.12 and 3.13.
+
+Django>=5.2,<5.3                 # web framework (5.2 LTS, supported until April 2028)
+djangorestframework>=3.16,<3.17  # REST API
+pymongo>=4.17,<5                 # official MongoDB driver
+python-dotenv>=1.0,<2            # reads the .env file
+
+# Tests only: an in-memory MongoDB imitation, so tests need no MongoDB server
+mongomock>=4.3,<5
+
+# No other packages are required. The optional AI feature uses Python's
+# built-in urllib, and the PDF report uses the browser's "Save as PDF".

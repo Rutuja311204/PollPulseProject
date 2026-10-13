@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="auth-page">
+  <aside class="auth-aside">
+    <a class="brand" href="{% url 'landing' %}">{% include "partials/_logo.html" %}PollPulse</a>
+    <div>
+      <blockquote>Questions that ask one thing. Answers you can read.</blockquote>
+      <ul>
+        <li>Twelve question types, each with its own validation</li>
+        <li>A quality checker that flags leading and double-barrelled wording</li>
+        <li>Analytics that show how every number is calculated</li>
+      </ul>
+    </div>
+    <span class="small">An MCA case study project.</span>
+  </aside>
+  <main class="auth-main" id="main">
+    <div class="auth-card">
+      {% include "partials/_messages.html" %}
+      {% block auth %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

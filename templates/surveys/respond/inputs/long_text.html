@@ -1,0 +1,1 @@
+<textarea class="form-control" name="q_{{ item.q.qid }}" rows="5" maxlength="{{ item.q.config.max_length }}" {% if item.q.config.min_length %}minlength="{{ item.q.config.min_length }}"{% endif %} placeholder="Your answer" aria-label="{{ item.q.title }}">{{ item.value|default:'' }}</textarea>

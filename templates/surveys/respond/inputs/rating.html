@@ -1,0 +1,7 @@
+{% comment %} Stars are rendered from highest to lowest so CSS can colour "this star and all before it". {% endcomment %}
+<div class="stars" role="radiogroup" aria-label="{{ item.q.title }}">
+  {% for v in item.scale reversed %}
+  <input type="radio" name="q_{{ item.q.qid }}" id="q-{{ item.q.qid }}-{{ v }}" value="{{ v }}" {% if item.value|stringformat:'s' == v|stringformat:'s' %}checked{% endif %}>
+  <label for="q-{{ item.q.qid }}-{{ v }}" title="{{ v }} of {{ item.scale|length }}"><i class="bi bi-star-fill" aria-hidden="true"></i><span class="visually-hidden">{{ v }} of {{ item.scale|length }}</span></label>
+  {% endfor %}
+</div>

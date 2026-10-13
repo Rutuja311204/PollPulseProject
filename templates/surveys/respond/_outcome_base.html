@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block body_class %}respond-body{% endblock %}
+{% block body %}
+<div class="respond-shell">
+  <div class="respond-top"><a class="brand" href="{% url 'landing' %}">{% include "partials/_logo.html" %}PollPulse</a></div>
+  <main id="main">{% block outcome %}{% endblock %}</main>
+</div>
+{% endblock %}

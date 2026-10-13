@@ -1,0 +1,65 @@
+{% extends "adminpanel/base.html" %}
+{% load static %}
+{% block title %}Admin overview{% endblock %}
+{% block page_title %}Platform overview{% endblock %}
+{% block lede %}<p class="lede">Live figures from SQLite (accounts) and MongoDB (surveys and responses).</p>{% endblock %}
+{% block content %}
+<div class="metrics mb-3">
+  <div class="metric accent"><div class="metric-value">{{ stats.users_total }}</div><div class="metric-label">Registered users</div><div class="metric-note">{{ stats.users_active }} active, {{ stats.users_suspended }} suspended</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.surveys_total }}</div><div class="metric-label">Surveys</div><div class="metric-note">{{ stats.surveys_published }} published, {{ stats.surveys_draft }} drafts</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.responses_total }}</div><div class="metric-label">Responses</div><div class="metric-note">{{ stats.responses_24h }} in the last 24 hours</div></div>
+  <div class="metric"><div class="metric-value">{{ stats.surveys_suspended }}</div><div class="metric-label">Suspended surveys</div><div class="metric-note">{{ stats.admins }} administrator{{ stats.admins|pluralize }}</div></div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-xl-8">
+    <section class="panel h-100">
+      <div class="panel-head"><h2>Platform activity</h2>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Period">
+          <a class="btn {% if activity.granularity == 'day' %}btn-primary{% else %}btn-ghost{% endif %}" href="?period=day">Daily</a>
+          <a class="btn {% if activity.granularity == 'week' %}btn-primary{% else %}btn-ghost{% endif %}" href="?period=week">Weekly</a>
+          <a class="btn {% if activity.granularity == 'month' %}btn-primary{% else %}btn-ghost{% endif %}" href="?period=month">Monthly</a>
+        </div></div>
+      <div class="panel-body"><div class="chart-box tall"><canvas id="activity-chart" role="img" aria-label="Responses, new surveys and new users per period"></canvas></div></div>
+    </section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel h-100">
+      <div class="panel-head"><h2>System health</h2></div>
+      <div class="panel-body">
+        <p class="mb-3">{% if health.mongodb %}<span class="status status-published">MongoDB connected</span>{% else %}<span class="status status-suspended">MongoDB unreachable</span>{% endif %}
+          {% if health.mongodb_version %}<span class="small-print ms-1">version {{ health.mongodb_version }}</span>{% endif %}</p>
+        <dl class="kv small">{% for name, count in health.collections.items %}<dt>{{ name }}</dt><dd class="num">{{ count }} documents</dd>{% endfor %}
+          <dt>Survey statuses</dt><dd>{{ stats.surveys_closed }} closed, {{ stats.surveys_archived }} archived</dd></dl>
+        <p class="small-print mt-3 mb-0">Public check for monitoring tools: <a href="{% url 'health' %}">/health/</a></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-4">
+    <section class="panel h-100"><div class="panel-head"><h2>New users</h2><a class="small fw-semibold" href="{% url 'adminpanel:users' %}">All users</a></div>
+      <div class="panel-body py-2"><ul class="list-plain">{% for u in registrations %}
+        <li><a class="list-link" href="{% url 'adminpanel:user_detail' u.id %}">{{ u.username }}</a><span class="small-print">{{ u.date_joined|timesince }} ago</span></li>
+      {% empty %}<li class="muted">No users yet.</li>{% endfor %}</ul></div></section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel h-100"><div class="panel-head"><h2>Recently published</h2><a class="small fw-semibold" href="{% url 'adminpanel:surveys' %}">Moderation</a></div>
+      <div class="panel-body py-2"><ul class="list-plain">{% for s in publications %}
+        <li><span class="text-truncate"><a class="list-link" href="{% url 'adminpanel:survey_detail' s.id %}">{{ s.title }}</a><br><span class="small-print">by {{ s.owner_username }}</span></span><span class="small-print text-nowrap">{{ s.published_at|timesince }} ago</span></li>
+      {% empty %}<li class="muted">Nothing published yet.</li>{% endfor %}</ul></div></section>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel h-100"><div class="panel-head"><h2>Admin actions</h2><a class="small fw-semibold" href="{% url 'adminpanel:audit' %}">Audit log</a></div>
+      <div class="panel-body py-2"><ul class="list-plain">{% for e in recent_audit %}
+        <li><span>{{ e.label }} <span class="muted">by {{ e.actor_username }}</span></span><span class="small-print text-nowrap">{{ e.created_at|timesince }} ago</span></li>
+      {% empty %}<li class="muted">No administrative actions yet.</li>{% endfor %}</ul></div></section>
+  </div>
+</div>
+{{ activity|json_script:"activity-data" }}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock %}

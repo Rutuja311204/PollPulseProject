@@ -1,0 +1,5 @@
+<div class="yesno">
+  {% for value, label in item.labels %}
+  <label class="choice"><input type="radio" name="q_{{ item.q.qid }}" value="{{ value }}" {% if item.value == value %}checked{% endif %}><span class="pick"></span><span>{{ label }}</span></label>
+  {% endfor %}
+</div>

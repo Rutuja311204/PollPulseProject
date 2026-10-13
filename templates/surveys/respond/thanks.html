@@ -1,0 +1,23 @@
+{% extends "surveys/respond/_outcome_base.html" %}
+{% block title %}Thank you{% endblock %}
+{% block outcome %}
+<div class="outcome">
+  {% if already %}
+    <div class="mark-big neutral"><i class="bi bi-check2-all"></i></div>
+    <h1>You have already responded</h1>
+    <p>A response from you is already recorded for <strong>{{ survey.title }}</strong>, and this survey accepts one response per {% if survey.settings.duplicate_protection == 'user' %}account{% else %}browser{% endif %}.</p>
+  {% else %}
+    <div class="mark-big"><i class="bi bi-check2-circle"></i></div>
+    <h1>{% if edited %}Response updated{% else %}Response submitted{% endif %}</h1>
+    <p class="pre-line">{{ survey.settings.thank_you_message|default:"Thank you. Your response has been recorded." }}</p>
+  {% endif %}
+  <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+    {% if survey.settings.allow_edit and survey.settings.duplicate_protection != 'none' %}
+    <a class="btn btn-ghost" href="{% url 'surveys:respond' survey.public_token %}"><i class="bi bi-pencil"></i>Edit my response</a>
+    {% endif %}
+    {% if survey.settings.results_public %}
+    <a class="btn btn-primary" href="{% url 'surveys:public_results' survey.public_token %}"><i class="bi bi-bar-chart-line"></i>See the results</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

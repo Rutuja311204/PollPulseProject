@@ -1,0 +1,47 @@
+{% extends "adminpanel/base.html" %}
+{% load pp %}
+{% block title %}{{ target.username }}{% endblock %}
+{% block crumb %}<a class="crumb" href="{% url 'adminpanel:users' %}"><i class="bi bi-arrow-left"></i>Users</a>{% endblock %}
+{% block page_title %}{{ target.username }}{% endblock %}
+{% block lede %}<p class="lede">{{ target.first_name }} · {{ target.email }} · joined {{ target.date_joined|date:"d M Y" }}{% if target.last_login %} · last sign-in {{ target.last_login|timesince }} ago{% endif %}</p>{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-8 stack">
+    <section class="panel">
+      <div class="panel-head"><h2>Surveys</h2><span class="muted">{{ surveys|length }} owned</span></div>
+      {% if surveys %}<div class="table-wrap"><table class="data-table"><thead><tr><th>Title</th><th>Status</th><th class="num">Responses</th><th>Created</th></tr></thead><tbody>
+        {% for survey in surveys %}<tr><td class="title-cell"><a href="{% url 'adminpanel:survey_detail' survey.id %}">{{ survey.title }}</a></td><td>{% include "partials/_status.html" %}</td><td class="num">{{ survey.response_count }}</td><td class="small-print">{{ survey.created_at|date:"d M Y" }}</td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="panel-body muted">No surveys.</div>{% endif %}
+    </section>
+    <section class="panel"><div class="panel-head"><h2>Recent activity</h2></div>
+      <div class="panel-body py-2"><ul class="list-plain">{% for e in history %}<li><span>{{ e.label }}{% if e.details.title %} <span class="muted">“{{ e.details.title }}”</span>{% endif %}</span><span class="small-print">{{ e.created_at|date:"d M Y, H:i" }}</span></li>{% empty %}<li class="muted">No recorded activity.</li>{% endfor %}</ul></div></section>
+  </div>
+  <div class="col-xl-4 stack">
+    <section class="panel panel-pad">
+      <h2 class="section-title">Account status</h2>
+      <p>{% if target.is_active %}<span class="status status-published">Active</span>{% else %}<span class="status status-suspended">Suspended</span> — this user cannot sign in.{% endif %}</p>
+      {% if target.pk == user.pk %}<p class="small-print mb-0">This is your own account.</p>
+      {% elif target.is_active %}
+      <form method="post" action="{% url 'adminpanel:user_status' target.id %}" data-confirm="Suspend {{ target.username }}? They will be signed out and cannot sign in.">
+        {% csrf_token %}<input type="hidden" name="action" value="suspend">
+        <label class="form-label" for="reason">Reason (kept in the audit log)</label>
+        <textarea class="form-control mb-2" id="reason" name="reason" rows="2" maxlength="300" required></textarea>
+        <button class="btn btn-outline-danger w-100" type="submit"><i class="bi bi-person-slash"></i>Suspend account</button>
+      </form>
+      {% else %}
+      <form method="post" action="{% url 'adminpanel:user_status' target.id %}">{% csrf_token %}<input type="hidden" name="action" value="activate">
+        <button class="btn btn-primary w-100" type="submit"><i class="bi bi-person-check"></i>Reactivate account</button></form>
+      {% endif %}
+    </section>
+    <section class="panel panel-pad">
+      <h2 class="section-title">Role</h2>
+      <p>{% if target.is_superuser %}Superuser{% elif target.is_staff %}Administrator{% else %}Creator{% endif %}</p>
+      {% if user.is_superuser and target.pk != user.pk and not target.is_superuser %}
+      <form method="post" action="{% url 'adminpanel:user_role' target.id %}" data-confirm="{% if target.is_staff %}Remove administrator access from {{ target.username }}?{% else %}Give {{ target.username }} administrator access?{% endif %}">
+        {% csrf_token %}<input type="hidden" name="grant" value="{% if target.is_staff %}0{% else %}1{% endif %}">
+        <button class="btn btn-ghost w-100" type="submit">{% if target.is_staff %}Revoke administrator role{% else %}Grant administrator role{% endif %}</button></form>
+      {% else %}<p class="small-print mb-0">Only a superuser can change roles, and never their own.</p>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+.venv/
+
+# Secrets - never commit
+.env
+
+# Django local database (auth + sessions only)
+db.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Collected static files
+staticfiles/
+
+# Editor / OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+.env.*
+!.env.example

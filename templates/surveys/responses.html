@@ -1,0 +1,35 @@
+{% extends "app_base.html" %}
+{% load pp %}
+{% block title %}Responses · {{ survey.title }}{% endblock %}
+{% block page_head %}{% include "partials/_survey_head.html" %}{% endblock %}
+{% block tabs %}{% include "partials/_survey_tabs.html" with tab="responses" %}{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar date-filter">
+  <div><label for="start">From</label><input class="form-control" type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}"></div>
+  <div><label for="end">To</label><input class="form-control" type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}"></div>
+  <button class="btn btn-primary" type="submit">Apply</button>
+  {% if start or end %}<a class="btn btn-quiet" href="{% url 'surveys:responses' survey.id %}">All time</a>{% endif %}
+  <a class="btn btn-ghost ms-auto" href="{% url 'surveys:export_responses' survey.id %}?{% query_replace request page=None %}"><i class="bi bi-download"></i>Download CSV</a>
+</form>
+{% if rows %}
+<div class="stack">
+  {% for row in rows %}
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Response {{ row.number }}</h2>
+      <span class="muted">{{ row.doc.submitted_at|date:"d M Y, H:i" }}{% if row.doc.duration_seconds is not None %} · {{ row.doc.duration_seconds|duration }}{% endif %}{% if row.doc.edited_at %} · edited{% endif %}{% if row.doc.respondent %} · {{ row.doc.respondent.username }}{% endif %}{% if row.doc.source != 'web' %} · via {{ row.doc.source }}{% endif %}</span>
+    </div>
+    <div class="panel-body">
+      <dl class="kv">
+        {% for q, text in row.answers %}<dt>Q{{ forloop.counter }}. {{ q.title|truncatechars:60 }}</dt><dd class="pre-line">{% if text is None %}<span class="muted">Skipped</span>{% else %}{{ text }}{% endif %}</dd>{% endfor %}
+      </dl>
+    </div>
+  </section>
+  {% endfor %}
+  <section class="panel">{% include "partials/_pager.html" %}</section>
+</div>
+{% else %}
+<div class="panel empty"><div class="empty-mark"><i class="bi bi-inboxes"></i></div><h2>No responses {% if start or end %}in this period{% else %}yet{% endif %}</h2>
+  <p>Each submitted response will be listed here with its answers.</p></div>
+{% endif %}
+{% endblock %}

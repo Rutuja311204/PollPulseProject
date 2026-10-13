@@ -1,0 +1,15 @@
+{% extends "surveys/respond/_outcome_base.html" %}
+{% block title %}Draft saved{% endblock %}
+{% block outcome %}
+<div class="outcome">
+  <div class="mark-big neutral"><i class="bi bi-bookmark-check"></i></div>
+  <h1>Your answers are saved</h1>
+  <p>Open the survey again in this browser, or use this private link on any device, to continue where you left off. Nothing is submitted until you press Submit.</p>
+  <div class="share-box mx-auto mt-3" style="max-width:560px">
+    <input class="form-control" id="resume-url" value="{{ resume_url }}" readonly aria-label="Resume link">
+    <button class="btn btn-primary" type="button" data-copy="#resume-url"><i class="bi bi-clipboard"></i><span>Copy</span></button>
+  </div>
+  <p class="small-print mt-3">Keep this link private: anyone with it can see and continue your draft.</p>
+  <a class="btn btn-ghost mt-2" href="{{ resume_url }}">Continue now</a>
+</div>
+{% endblock %}

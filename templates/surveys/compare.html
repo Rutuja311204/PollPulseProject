@@ -1,0 +1,50 @@
+{% extends "app_base.html" %}
+{% block title %}Compare surveys{% endblock %}
+{% block page_title %}Compare surveys{% endblock %}
+{% block lede %}<p class="lede">Put one question from each survey side by side — for example the same question asked before and after a change.</p>{% endblock %}
+{% block content %}
+{% if choices|length < 1 %}
+<div class="panel empty"><div class="empty-mark"><i class="bi bi-layout-split"></i></div><h2>You need surveys to compare</h2><p>Create surveys with choice, rating or number questions, collect responses, then compare them here.</p></div>
+{% else %}
+<form method="get" class="panel panel-pad mb-4">
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label" for="a">Survey A</label>
+      <select class="form-select" name="a" id="a" data-autosubmit><option value="">Choose…</option>{% for id, title in choices %}<option value="{{ id }}" {% if id == a_id %}selected{% endif %}>{{ title }}</option>{% endfor %}</select></div>
+    <div class="col-md-6"><label class="form-label" for="b">Survey B</label>
+      <select class="form-select" name="b" id="b" data-autosubmit><option value="">Choose…</option>{% for id, title in choices %}<option value="{{ id }}" {% if id == b_id %}selected{% endif %}>{{ title }}</option>{% endfor %}</select></div>
+    {% if survey_a and survey_b %}
+    <div class="col-md-6"><label class="form-label" for="qa">Question from A</label>
+      <select class="form-select" name="qa" id="qa">{% for qid, label in questions_a %}<option value="{{ qid }}" {% if qid == qa %}selected{% endif %}>{{ label|truncatechars:70 }}</option>{% empty %}<option value="">No comparable questions</option>{% endfor %}</select></div>
+    <div class="col-md-6"><label class="form-label" for="qb">Question from B</label>
+      <select class="form-select" name="qb" id="qb">{% for qid, label in questions_b %}<option value="{{ qid }}" {% if qid == qb %}selected{% endif %}>{{ label|truncatechars:70 }}</option>{% empty %}<option value="">No comparable questions</option>{% endfor %}</select></div>
+    {% endif %}
+    <div class="col-12"><button class="btn btn-primary" type="submit">{% if survey_a and survey_b %}Compare{% else %}Next: choose questions{% endif %}</button></div>
+  </div>
+</form>
+
+{% if result.error %}<div class="alert alert-warning">{{ result.error }}</div>
+{% elif result %}
+<section class="panel">
+  <div class="panel-head"><h2>{{ result.a.title|truncatechars:50 }} <span class="muted fw-normal">vs</span> {{ result.b.title|truncatechars:50 }}</h2></div>
+  <div class="panel-body">
+    {% if result.warning %}<div class="alert alert-warning">{{ result.warning }}</div>{% endif %}
+    {% if result.rows %}
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr><th>Answer</th><th class="num">A: count</th><th class="num">A: %</th><th class="num">B: count</th><th class="num">B: %</th><th class="num">Difference (B − A)</th></tr></thead>
+      <tbody>{% for row in result.rows %}<tr><td><strong>{{ row.label }}</strong></td><td class="num">{{ row.a_count }}</td><td class="num">{{ row.a_pct }}%</td>
+        <td class="num">{{ row.b_count }}</td><td class="num">{{ row.b_pct }}%</td>
+        <td class="num {% if row.diff > 0 %}text-success{% elif row.diff < 0 %}text-danger{% endif %}">{% if row.diff > 0 %}+{% endif %}{{ row.diff }} pts</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <p class="small-print mt-2 mb-0">Answers are matched by their text. Percentages are of respondents who answered each question (A: {{ result.a.answered }}, B: {{ result.b.answered }}). A difference is in percentage points.</p>
+    {% else %}
+    <div class="row g-4">
+      <div class="col-md-6"><h3 class="h6">A</h3><div class="stat-pairs"><div><span>Answers</span><strong>{{ result.a.stats.count }}</strong></div><div><span>Average</span><strong>{{ result.a.stats.mean|default:"—" }}</strong></div><div><span>Median</span><strong>{{ result.a.stats.median|default:"—" }}</strong></div></div></div>
+      <div class="col-md-6"><h3 class="h6">B</h3><div class="stat-pairs"><div><span>Answers</span><strong>{{ result.b.stats.count }}</strong></div><div><span>Average</span><strong>{{ result.b.stats.mean|default:"—" }}</strong></div><div><span>Median</span><strong>{{ result.b.stats.median|default:"—" }}</strong></div></div></div>
+    </div>
+    {% if result.diff_mean is not None %}<p class="mt-3 mb-0">Difference in averages (B − A): <strong>{% if result.diff_mean > 0 %}+{% endif %}{{ result.diff_mean }}</strong>. This is a descriptive difference, not a significance test.</p>{% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

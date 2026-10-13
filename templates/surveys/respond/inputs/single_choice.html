@@ -1,0 +1,7 @@
+{% for o in item.q.options %}
+<label class="choice"><input type="radio" name="q_{{ item.q.qid }}" value="{{ o.oid }}" {% if item.value == o.oid %}checked{% endif %}><span class="pick"></span><span>{{ o.text }}</span></label>
+{% endfor %}
+{% if item.q.config.allow_other %}
+<label class="choice"><input type="radio" class="other-choice" name="q_{{ item.q.qid }}" value="__other__" {% if item.value == '__other__' %}checked{% endif %}><span class="pick"></span><span>Other</span></label>
+<div class="other-input"><input class="form-control other-text" name="q_{{ item.q.qid }}_other" value="{{ item.other_text|default:'' }}" maxlength="200" placeholder="Please describe" aria-label="Other answer"></div>
+{% endif %}

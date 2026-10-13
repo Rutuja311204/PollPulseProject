@@ -1,0 +1,6 @@
+<div class="mb-3 {% if field.errors %}is-invalid-group{% endif %}">
+  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="muted fw-normal">(optional)</span>{% endif %}</label>
+  {{ field }}
+  {% for error in field.errors %}<div class="field-error"><i class="bi bi-exclamation-circle"></i>{{ error }}</div>{% endfor %}
+  {% if field.help_text and show_help %}<div class="form-text">{{ field.help_text|safe }}</div>{% endif %}
+</div>

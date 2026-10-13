@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% comment %} Signed-in layout: dark rail on the left, page content on the right. {% endcomment %}
+{% block body %}
+<div class="shell">
+  {% block rail %}{% include "partials/_rail.html" %}{% endblock %}
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#rail" aria-controls="rail" aria-label="Open navigation"><i class="bi bi-list"></i></button>
+      <a class="brand" href="{% url 'surveys:dashboard' %}">{% include "partials/_logo.html" %}PollPulse</a>
+      <span style="width:34px"></span>
+    </header>
+    <main class="content" id="main">
+      {% include "partials/_messages.html" %}
+      {% block page_head %}
+      <div class="page-head">
+        <div>
+          {% block crumb %}{% endblock %}
+          <h1>{% block page_title %}{% endblock %}</h1>
+          {% block lede %}{% endblock %}
+        </div>
+        <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+      </div>
+      {% endblock %}
+      {% block tabs %}{% endblock %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block body_class %}respond-body{% endblock %}
+{% block body %}
+<div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+<div class="respond-shell">
+  <div class="respond-top">
+    <span class="brand">{% include "partials/_logo.html" %}PollPulse</span>
+    <span class="small-print" id="progress-label" aria-live="polite"></span>
+  </div>
+
+  {% if preview %}
+  <div class="preview-banner"><span><i class="bi bi-eye me-1"></i>Preview — answers are validated but never saved.</span>
+    <a href="{% url 'surveys:builder' survey.id %}">Back to the builder</a></div>
+  {% endif %}
+
+  <header class="respond-header">
+    <h1>{{ survey.title }}</h1>
+    {% if survey.description %}<p class="desc pre-line">{{ survey.description }}</p>{% endif %}
+    <div class="respond-meta">
+      <span><i class="bi bi-list-check"></i>{{ items|length }} question{{ items|length|pluralize }}</span>
+      {% if required_count %}<span><span class="req">*</span>&nbsp;marks a required question</span>{% endif %}
+      {% if survey.settings.identity == 'identified' %}<span><i class="bi bi-person-badge"></i>Your username is recorded with your answers</span>
+      {% else %}<span><i class="bi bi-incognito"></i>Anonymous</span>{% endif %}
+    </div>
+  </header>
+
+  {% include "partials/_messages.html" %}
+  {% if editing %}<div class="alert alert-info"><i class="bi bi-pencil me-1"></i>You already answered this survey. Change your answers below and submit to update your response.</div>{% endif %}
+  {% if has_draft %}<div class="alert alert-info"><i class="bi bi-bookmark-check me-1"></i>We restored the answers you saved earlier.</div>{% endif %}
+  {% if form_errors %}
+  <div class="alert alert-danger" role="alert"><strong>Some answers need attention.</strong>
+    <ul class="mt-1">{% for e in form_errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+  {% endif %}
+
+  <form method="post" id="respond-form" data-mode="{% if preview %}all{% else %}{{ survey.settings.display_mode }}{% endif %}" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="resume" value="{{ resume_token|default:'' }}">
+    {% for item in items %}
+      {% include "surveys/respond/_question.html" %}
+    {% endfor %}
+
+    {% if survey.settings.consent_text and not preview %}
+    <div class="consent-box {% if consent_error %}border-danger{% endif %}" data-final>
+      <p class="pre-line mb-2">{{ survey.settings.consent_text }}</p>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="consent" value="yes" id="consent" required>
+        <label class="form-check-label fw-semibold" for="consent">I agree</label>
+      </div>
+      {% for e in consent_error %}<div class="field-error">{{ e }}</div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="respond-actions">
+      <div id="pager-nav" class="d-none"><div class="d-flex gap-2 align-items-center">
+        <button type="button" class="btn btn-ghost" id="prev-btn"><i class="bi bi-arrow-left"></i>Back</button>
+        <button type="button" class="btn btn-primary" id="next-btn">Next<i class="bi bi-arrow-right"></i></button>
+        <span class="step-indicator ms-2" id="step-label"></span>
+      </div></div>
+      <span class="spacer"></span>
+      {% if survey.settings.allow_save_resume and not preview and not editing %}
+      <button class="btn btn-ghost" type="submit" name="action" value="save_draft" formnovalidate><i class="bi bi-bookmark"></i>Save and finish later</button>
+      {% endif %}
+      <button class="btn btn-primary btn-lg" type="submit" name="action" value="submit" data-final>
+        {% if preview %}Check answers{% elif editing %}Update response{% else %}Submit{% endif %}</button>
+    </div>
+  </form>
+  <p class="small-print text-center mt-4">Built with <a href="{% url 'landing' %}">PollPulse</a>. Never share passwords through a survey.</p>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/respond.js' %}"></script>{% endblock %}

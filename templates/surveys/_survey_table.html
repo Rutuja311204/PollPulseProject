@@ -1,0 +1,21 @@
+<div class="table-wrap">
+<table class="data-table">
+  <thead><tr><th>Survey</th><th>Status</th><th class="num">Questions</th><th class="num">Responses</th><th>Updated</th><th class="text-end"><span class="visually-hidden">Actions</span></th></tr></thead>
+  <tbody>
+  {% for survey in surveys %}
+  <tr>
+    <td class="title-cell"><a href="{% url 'surveys:overview' survey.id %}">{{ survey.title }}</a>
+      <div class="sub">{% if survey.role != 'owner' %}<span class="role-chip me-1">{{ survey.role }}</span>{% endif %}{{ survey.description|default:"No description" }}</div></td>
+    <td>{% include "partials/_status.html" %}</td>
+    <td class="num">{{ survey.question_count }}</td>
+    <td class="num"><strong>{{ survey.response_count }}</strong>{% if survey.settings.max_responses %}<span class="muted"> / {{ survey.settings.max_responses }}</span>{% endif %}</td>
+    <td class="small-print text-nowrap">{{ survey.updated_at|date:"d M Y" }}</td>
+    <td class="text-end text-nowrap">
+      <a class="icon-btn" href="{% url 'surveys:builder' survey.id %}" title="Questions" aria-label="Edit questions of {{ survey.title }}"><i class="bi bi-pencil-square"></i></a>
+      <a class="icon-btn" href="{% url 'surveys:analytics' survey.id %}" title="Analytics" aria-label="Analytics for {{ survey.title }}"><i class="bi bi-bar-chart-line"></i></a>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>

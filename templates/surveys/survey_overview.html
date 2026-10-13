@@ -1,0 +1,82 @@
+{% extends "app_base.html" %}
+{% load pp %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block page_head %}{% include "partials/_survey_head.html" %}{% endblock %}
+{% block tabs %}{% include "partials/_survey_tabs.html" with tab="overview" %}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-8 stack">
+    <div class="metrics">
+      <div class="metric accent"><div class="metric-value">{{ survey.response_count }}</div><div class="metric-label">Responses{% if survey.settings.max_responses %} of {{ survey.settings.max_responses }}{% endif %}</div></div>
+      <div class="metric"><div class="metric-value">{{ survey.question_count }}</div><div class="metric-label">Questions</div></div>
+      <div class="metric"><div class="metric-value">{% if survey.accepting %}Open{% else %}Not open{% endif %}</div><div class="metric-label">{% if survey.accepting %}Accepting responses{% else %}{{ survey.closed_message }}{% endif %}</div></div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Share</h2>{% if survey.status == 'draft' %}<span class="muted">Publish first; draft links show “not published”.</span>{% endif %}</div>
+      <div class="panel-body">
+        <div class="share-box">
+          <input class="form-control" id="share-url" value="{{ share_url }}" readonly aria-label="Public survey link">
+          <button class="btn btn-primary" type="button" data-copy="#share-url"><i class="bi bi-clipboard"></i><span>Copy link</span></button>
+        </div>
+        <p class="small-print mt-2 mb-0">The link uses a random code, not the database id. {% if survey.settings.access == 'login' %}Respondents must sign in.{% else %}No account is needed to answer.{% endif %}
+          {% if survey.settings.results_public %}Public results: <a href="{% url 'surveys:public_results' survey.public_token %}" target="_blank" rel="noopener">open</a>.{% endif %}</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Quality check</h2>
+        <span class="muted num">{{ issue_counts.error }} blocking, {{ issue_counts.warning }} warnings, {{ issue_counts.tip }} tips</span></div>
+      <div class="panel-body py-2">{% include "partials/_issues.html" %}</div>
+      <div class="panel-body pt-0"><p class="method-note mb-0">Rule-based recommendations about wording and structure. Only blocking items stop publishing; the rest are suggestions you can ignore.</p></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Latest responses</h2><a class="small fw-semibold" href="{% url 'surveys:responses' survey.id %}">All responses</a></div>
+      <div class="panel-body py-2">
+        <ul class="list-plain">
+          {% for r in recent_responses %}
+          <li><span>Submitted {{ r.submitted_at|timesince }} ago{% if r.respondent %} by <strong>{{ r.respondent.username }}</strong>{% endif %}{% if r.edited_at %} <span class="muted">(edited)</span>{% endif %}</span>
+            <span class="small-print">{% if r.duration_seconds is not None %}took {{ r.duration_seconds|duration }}{% endif %}</span></li>
+          {% empty %}<li class="muted">No responses yet.</li>{% endfor %}
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-xl-4 stack">
+    <section class="panel">
+      <div class="panel-head"><h2>Settings</h2>{% if survey.can.edit %}<a class="small fw-semibold" href="{% url 'surveys:settings' survey.id %}">Change</a>{% endif %}</div>
+      <div class="panel-body">
+        <dl class="kv">
+          <dt>Who can answer</dt><dd>{% if survey.settings.access == 'login' %}Signed-in users{% else %}Anyone with the link{% endif %}</dd>
+          <dt>Identity</dt><dd>{{ survey.settings.identity|capfirst }}</dd>
+          <dt>Duplicates</dt><dd>{% if survey.settings.duplicate_protection == 'session' %}One per browser{% elif survey.settings.duplicate_protection == 'user' %}One per account{% else %}Allowed{% endif %}</dd>
+          <dt>Layout</dt><dd>{% if survey.settings.display_mode == 'one_per_page' %}One question at a time{% else %}All on one page{% endif %}</dd>
+          <dt>Opens</dt><dd>{{ survey.settings.start_at|date:"d M Y, H:i"|default:"When published" }}</dd>
+          <dt>Closes</dt><dd>{{ survey.settings.end_at|date:"d M Y, H:i"|default:"When you close it" }}</dd>
+          <dt>Limit</dt><dd>{{ survey.settings.max_responses|default:"No limit" }}</dd>
+          <dt>Drafts</dt><dd>{{ survey.settings.allow_save_resume|yesno:"Save and resume allowed,Not allowed" }}</dd>
+          <dt>Editing</dt><dd>{{ survey.settings.allow_edit|yesno:"Respondents can edit,Not allowed" }}</dd>
+        </dl>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>People</h2>{% if survey.can.manage_collaborators %}<a class="small fw-semibold" href="{% url 'surveys:settings' survey.id %}#collaborators">Manage</a>{% endif %}</div>
+      <div class="panel-body py-2">
+        <ul class="list-plain">
+          <li><span>{% if survey.role == 'owner' %}You{% else %}Owner{% endif %}</span><span class="role-chip">owner</span></li>
+          {% for c in survey.collaborators %}<li><span>{{ c.username }}</span><span class="role-chip">{{ c.role }}</span></li>{% endfor %}
+        </ul>
+      </div>
+    </section>
+    <section class="panel panel-pad">
+      <dl class="kv small">
+        <dt>Created</dt><dd>{{ survey.created_at|date:"d M Y" }}</dd>
+        <dt>Published</dt><dd>{{ survey.published_at|date:"d M Y"|default:"Not yet" }}</dd>
+        <dt>Updated</dt><dd>{{ survey.updated_at|date:"d M Y, H:i" }}</dd>
+      </dl>
+    </section>
+  </div>
+</div>
+{% endblock %}

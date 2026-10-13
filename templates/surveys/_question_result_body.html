@@ -1,0 +1,81 @@
+{% comment %} One analysed question. `public` hides charts and private details. {% endcomment %}
+{% if q.kind == 'choice' or q.kind == 'multi' %}
+<div class="row g-4 align-items-center">
+  {% if not public %}<div class="col-md-5"><div class="chart-box short"><canvas data-chart="{{ q.qid }}" role="img" aria-label="Chart of answers to question {{ q.number }}"></canvas></div></div>{% endif %}
+  <div class="{% if public %}col-12{% else %}col-md-7{% endif %}">
+    {% include "surveys/_bar_rows.html" with rows=q.options %}
+    <p class="small-print mt-2 mb-0">
+      {% if q.mode|length == 1 %}Most common: <strong>{{ q.mode.0 }}</strong>.{% elif q.mode %}Tie between {{ q.mode|join:", " }}.{% endif %}
+      {% if q.kind == 'multi' %} {{ q.multi_note }} Average {{ q.avg_selections }} choices per respondent.{% else %} Percentages are of the {{ q.answered }} people who answered.{% endif %}
+    </p>
+    {% if q.other_texts and not public %}
+    <details class="mt-2"><summary class="small fw-semibold">“Other” answers ({{ q.other_texts|length }})</summary>
+      <ul class="quote-list mt-2">{% for t in q.other_texts %}<li>{{ t }}</li>{% endfor %}</ul></details>
+    {% endif %}
+  </div>
+</div>
+{% elif q.kind == 'scale' %}
+<div class="stat-pairs mb-3">
+  <div><span>Average</span><strong>{{ q.stats.mean }}</strong></div>
+  <div><span>Median</span><strong>{{ q.stats.median }}</strong></div>
+  <div><span>Lowest – highest</span><strong>{{ q.stats.min }}–{{ q.stats.max }}</strong></div>
+  <div><span>Std. deviation</span><strong>{{ q.stats.stdev }}</strong></div>
+  <div><span>Top two values</span><strong>{{ q.top_two_pct }}%</strong></div>
+</div>
+{% if public %}{% include "surveys/_bar_rows.html" with rows=q.options %}
+{% else %}<div class="chart-box short"><canvas data-chart="{{ q.qid }}" role="img" aria-label="Distribution of ratings for question {{ q.number }}"></canvas></div>{% endif %}
+<p class="small-print mt-2 mb-0">Scale {{ q.low }} to {{ q.high }}{% if q.min_label or q.max_label %} ({{ q.low }} = {{ q.min_label|default:"lowest" }}, {{ q.high }} = {{ q.max_label|default:"highest" }}){% endif %}.</p>
+{% elif q.kind == 'numeric' %}
+<div class="stat-pairs mb-3">
+  <div><span>Answers</span><strong>{{ q.stats.count }}</strong></div>
+  <div><span>Average</span><strong>{{ q.stats.mean }}</strong></div>
+  <div><span>Median</span><strong>{{ q.stats.median }}</strong></div>
+  <div><span>Lowest – highest</span><strong>{{ q.stats.min }}–{{ q.stats.max }}</strong></div>
+  <div><span>Std. deviation</span><strong>{{ q.stats.stdev }}</strong></div>
+</div>
+{% if not public %}<div class="chart-box short"><canvas data-chart="{{ q.qid }}" role="img" aria-label="Histogram for question {{ q.number }}"></canvas></div>{% endif %}
+{% elif q.kind == 'date' %}
+<div class="stat-pairs mb-3">
+  <div><span>Earliest</span><strong>{{ q.earliest }}</strong></div>
+  <div><span>Latest</span><strong>{{ q.latest }}</strong></div>
+  {% if q.mode|length == 1 %}<div><span>Most chosen</span><strong>{{ q.mode.0 }}</strong></div>{% endif %}
+</div>
+{% if not public %}<div class="chart-box short"><canvas data-chart="{{ q.qid }}" role="img" aria-label="Answers by month for question {{ q.number }}"></canvas></div>{% endif %}
+{% elif q.kind == 'ranking' %}
+<div class="table-wrap">
+<table class="data-table">
+  <thead><tr><th>Position</th><th>Item</th><th class="num">Average rank</th><th class="num">Ranked first</th><th class="num">Score (0–100)</th></tr></thead>
+  <tbody>{% for r in q.ranking %}
+    <tr><td class="num" style="text-align:left">{{ forloop.counter }}</td><td><strong>{{ r.label }}</strong></td><td class="num">{{ r.avg_rank|default:"—" }}</td>
+      <td class="num">{{ r.first_place }} ({{ r.first_place_pct }}%)</td><td class="num">{{ r.score }}</td></tr>
+  {% endfor %}</tbody>
+</table>
+</div>
+<p class="small-print mt-2 mb-0">Lower average rank is better. Score is a Borda count: with n items, first place earns n points, second n−1 and so on, scaled to 0–100.</p>
+{% elif q.kind == 'text' %}
+{% with t=q.text %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <h4 class="h6">Frequent words <span class="muted fw-normal">(in how many answers)</span></h4>
+    <div class="keyword-cloud mb-3">{% for k in t.keywords %}<span>{{ k.word }}<b>{{ k.count }}</b></span>{% empty %}<span class="muted bg-transparent p-0">Not enough text yet.</span>{% endfor %}</div>
+    {% if t.phrases %}<h4 class="h6">Repeated phrases</h4>
+    <div class="keyword-cloud mb-3">{% for p in t.phrases %}<span>{{ p.phrase }}<b>{{ p.count }}</b></span>{% endfor %}</div>{% endif %}
+    {% if t.topics %}<h4 class="h6">Topics mentioned</h4>
+    <ul class="bar-rows">{% for tp in t.topics %}<li class="bar-row"><span class="bar-label">{{ tp.topic }}</span><span class="bar-value"><strong>{{ tp.count }}</strong> · {{ tp.pct }}%</span><span class="bar-track"><span class="bar-fill" style="width:{{ tp.pct }}%;display:block"></span></span></li>{% endfor %}</ul>{% endif %}
+  </div>
+  <div class="col-lg-6">
+    <h4 class="h6">Estimated tone</h4>
+    <div class="sentiment-bar" role="img" aria-label="{{ t.sentiment.positive.pct }}% positive, {{ t.sentiment.neutral.pct }}% neutral, {{ t.sentiment.negative.pct }}% negative">
+      <span class="pos" style="width:{{ t.sentiment.positive.pct }}%"></span><span class="neu" style="width:{{ t.sentiment.neutral.pct }}%"></span><span class="neg" style="width:{{ t.sentiment.negative.pct }}%"></span>
+    </div>
+    <div class="legend-row"><span><i style="background:var(--mint)"></i>Positive {{ t.sentiment.positive.count }}</span><span><i style="background:#c9c6dc"></i>Neutral {{ t.sentiment.neutral.count }}</span><span><i style="background:var(--rose)"></i>Negative {{ t.sentiment.negative.count }}</span></div>
+    <p class="method-note">Word-list method: counts positive and negative words, flipping after “not”. English only; it misses sarcasm and context, so read the answers before drawing conclusions.</p>
+    {% if q.samples %}<h4 class="h6 mt-3">Latest answers</h4>
+    <ul class="quote-list">{% for s in q.samples %}<li class="pre-line">{{ s }}</li>{% endfor %}</ul>{% endif %}
+  </div>
+</div>
+{% endwith %}
+{% elif q.kind == 'email' %}
+<p class="small-print">Addresses are not listed here; download the responses CSV if you need them.</p>
+{% include "surveys/_bar_rows.html" with rows=q.domains %}
+{% endif %}

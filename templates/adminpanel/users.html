@@ -1,0 +1,39 @@
+{% extends "adminpanel/base.html" %}
+{% load pp %}
+{% block title %}Users{% endblock %}
+{% block page_title %}Users{% endblock %}
+{% block lede %}<p class="lede">Search accounts, suspend misuse and manage administrator access.</p>{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar" role="search">
+  <div class="input-icon grow"><i class="bi bi-search"></i><input class="form-control" type="search" name="q" value="{{ filters.q }}" placeholder="Username, name or email" aria-label="Search users"></div>
+  <select class="form-select" name="status" aria-label="Status"><option value="">Any status</option>
+    <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+    <option value="suspended" {% if filters.status == 'suspended' %}selected{% endif %}>Suspended</option></select>
+  <select class="form-select" name="role" aria-label="Role"><option value="">Any role</option>
+    <option value="creator" {% if filters.role == 'creator' %}selected{% endif %}>Creators</option>
+    <option value="admin" {% if filters.role == 'admin' %}selected{% endif %}>Administrators</option></select>
+  <button class="btn btn-primary" type="submit">Apply</button>
+  {% if filters.q or filters.status or filters.role %}<a class="btn btn-quiet" href="{% url 'adminpanel:users' %}">Clear</a>{% endif %}
+</form>
+<section class="panel">
+  {% if rows %}
+  <div class="table-wrap"><table class="data-table">
+    <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th class="num">Surveys</th><th class="num">Responses</th><th>Joined</th></tr></thead>
+    <tbody>{% for row in rows %}{% with u=row.user %}<tr>
+      <td class="title-cell"><a href="{% url 'adminpanel:user_detail' u.id %}">{{ u.username }}</a><div class="sub">{{ u.first_name }}</div></td>
+      <td>{{ u.email }}</td>
+      <td>{% if u.is_superuser %}Superuser{% elif u.is_staff %}Administrator{% else %}Creator{% endif %}</td>
+      <td>{% if u.is_active %}<span class="status status-published">Active</span>{% else %}<span class="status status-suspended">Suspended</span>{% endif %}</td>
+      <td class="num">{{ row.surveys }}</td><td class="num">{{ row.responses }}</td>
+      <td class="small-print text-nowrap">{{ u.date_joined|date:"d M Y" }}</td>
+    </tr>{% endwith %}{% endfor %}</tbody>
+  </table></div>
+  <div class="pager"><span class="num">{{ page.start_index }}–{{ page.end_index }} of {{ page.paginator.count }}</span>
+    <div class="d-flex gap-2">{% if page.has_previous %}<a class="btn btn-ghost" href="?{% query_replace request page=page.previous_page_number %}">Previous</a>{% endif %}
+      <span class="align-self-center num">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}<a class="btn btn-ghost" href="?{% query_replace request page=page.next_page_number %}">Next</a>{% endif %}</div></div>
+  {% else %}
+  <div class="empty"><div class="empty-mark"><i class="bi bi-people"></i></div><h2>No users match</h2><p>Try another search or clear the filters.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

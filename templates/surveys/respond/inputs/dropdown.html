@@ -1,0 +1,4 @@
+<select class="form-select" name="q_{{ item.q.qid }}" aria-label="{{ item.q.title }}" style="max-width:480px">
+  <option value="">Choose…</option>
+  {% for o in item.q.options %}<option value="{{ o.oid }}" {% if item.value == o.oid %}selected{% endif %}>{{ o.text }}</option>{% endfor %}
+</select>

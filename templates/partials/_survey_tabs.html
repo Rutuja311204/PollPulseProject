@@ -1,0 +1,8 @@
+<nav class="tabs" aria-label="Survey sections">
+  <a class="tab-link {% if tab == 'overview' %}active{% endif %}" href="{% url 'surveys:overview' survey.id %}"><i class="bi bi-house"></i>Overview</a>
+  <a class="tab-link {% if tab == 'builder' %}active{% endif %}" href="{% url 'surveys:builder' survey.id %}"><i class="bi bi-pencil-square"></i>Questions</a>
+  {% if survey.can.edit %}<a class="tab-link {% if tab == 'settings' %}active{% endif %}" href="{% url 'surveys:settings' survey.id %}"><i class="bi bi-gear"></i>Settings</a>{% endif %}
+  <a class="tab-link {% if tab == 'analytics' %}active{% endif %}" href="{% url 'surveys:analytics' survey.id %}"><i class="bi bi-bar-chart-line"></i>Analytics</a>
+  <a class="tab-link {% if tab == 'responses' %}active{% endif %}" href="{% url 'surveys:responses' survey.id %}"><i class="bi bi-inboxes"></i>Responses <span class="muted num">{{ survey.response_count }}</span></a>
+  <a class="tab-link {% if tab == 'reports' %}active{% endif %}" href="{% url 'surveys:reports' survey.id %}"><i class="bi bi-download"></i>Reports</a>
+</nav>

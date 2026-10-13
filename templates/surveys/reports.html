@@ -1,0 +1,33 @@
+{% extends "app_base.html" %}
+{% block title %}Reports · {{ survey.title }}{% endblock %}
+{% block page_head %}{% include "partials/_survey_head.html" %}{% endblock %}
+{% block tabs %}{% include "partials/_survey_tabs.html" with tab="reports" %}{% endblock %}
+{% block content %}
+<form method="get" class="filter-bar date-filter">
+  <div><label for="start">From</label><input class="form-control" type="date" id="start" name="start" value="{{ start|date:'Y-m-d' }}"></div>
+  <div><label for="end">To</label><input class="form-control" type="date" id="end" name="end" value="{{ end|date:'Y-m-d' }}"></div>
+  <button class="btn btn-primary" type="submit">Use this period</button>
+  {% if start or end %}<a class="btn btn-quiet" href="{% url 'surveys:reports' survey.id %}">All time</a>{% endif %}
+  <span class="small-print">{% if start or end %}Exports below are limited to {{ start|date:"d M Y"|default:"the first response" }} – {{ end|date:"d M Y"|default:"today" }}.{% else %}Exports include all responses.{% endif %}</span>
+</form>
+{% with qs=request.GET.urlencode %}
+<div class="row g-4">
+  <div class="col-md-6 col-xl-4"><section class="panel panel-pad h-100 d-flex flex-column">
+    <h2 class="section-title"><i class="bi bi-filetype-csv me-2 text-primary"></i>Responses (CSV)</h2>
+    <p class="text-secondary flex-grow-1">One row per response and one column per question. Multiple-choice answers are joined with “;”, rankings with “&gt;”.{% if survey.settings.identity == 'identified' %} Includes respondent usernames.{% endif %}</p>
+    <a class="btn btn-primary" href="{% url 'surveys:export_responses' survey.id %}{% if qs %}?{{ qs }}{% endif %}"><i class="bi bi-download"></i>Download responses</a>
+  </section></div>
+  <div class="col-md-6 col-xl-4"><section class="panel panel-pad h-100 d-flex flex-column">
+    <h2 class="section-title"><i class="bi bi-table me-2 text-primary"></i>Analytics summary (CSV)</h2>
+    <p class="text-secondary flex-grow-1">Counts, percentages and averages per question, completion figures and the rule-based summary sentences.</p>
+    <a class="btn btn-primary" href="{% url 'surveys:export_analytics' survey.id %}{% if qs %}?{{ qs }}{% endif %}"><i class="bi bi-download"></i>Download analytics</a>
+  </section></div>
+  <div class="col-md-6 col-xl-4"><section class="panel panel-pad h-100 d-flex flex-column">
+    <h2 class="section-title"><i class="bi bi-printer me-2 text-primary"></i>Printable report</h2>
+    <p class="text-secondary flex-grow-1">A clean summary page. Use your browser's Print and choose “Save as PDF” to get a PDF file.</p>
+    <a class="btn btn-ghost" href="{% url 'surveys:print_report' survey.id %}{% if qs %}?{{ qs }}{% endif %}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i>Open report</a>
+  </section></div>
+</div>
+{% endwith %}
+<p class="small-print mt-4">Files are UTF-8 so non-English text opens correctly in Excel. Cells that begin with =, +, - or @ are prefixed with an apostrophe so spreadsheet programs treat them as text, not formulas. Every export is recorded in the audit log.</p>
+{% endblock %}

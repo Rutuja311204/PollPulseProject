@@ -1,0 +1,1 @@
+{% if survey.suspended %}<span class="status status-suspended">Suspended</span>{% else %}<span class="status status-{{ survey.status }}">{{ survey.status|capfirst }}</span>{% endif %}

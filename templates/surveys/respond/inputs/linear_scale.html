@@ -1,0 +1,8 @@
+<div class="scale" role="radiogroup" aria-label="{{ item.q.title }}">
+  {% for v in item.scale %}
+  <label class="scale-opt"><input type="radio" name="q_{{ item.q.qid }}" value="{{ v }}" {% if item.value|stringformat:'s' == v|stringformat:'s' %}checked{% endif %}><span>{{ v }}</span></label>
+  {% endfor %}
+</div>
+{% if item.q.config.min_label or item.q.config.max_label %}
+<div class="scale-labels"><span>{{ item.scale.0 }} = {{ item.q.config.min_label|default:"lowest" }}</span><span>{{ item.scale|last }} = {{ item.q.config.max_label|default:"highest" }}</span></div>
+{% endif %}

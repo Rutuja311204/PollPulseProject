@@ -1,0 +1,17 @@
+{% extends "accounts/_auth_base.html" %}
+{% block title %}Create account{% endblock %}
+{% block auth %}
+<h1>Create your account</h1>
+<p class="sub">Free to use. Respondents never need an account for public surveys.</p>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include "partials/_form_errors.html" %}
+  {% include "partials/_field.html" with field=form.first_name %}
+  {% include "partials/_field.html" with field=form.username show_help=True %}
+  {% include "partials/_field.html" with field=form.email %}
+  {% include "partials/_field.html" with field=form.password1 show_help=True %}
+  {% include "partials/_field.html" with field=form.password2 %}
+  <button class="btn btn-primary btn-lg w-100" type="submit">Create account</button>
+</form>
+<p class="small mt-3 mb-0">Already registered? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+{% endblock %}

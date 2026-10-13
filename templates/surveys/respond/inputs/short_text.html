@@ -1,0 +1,1 @@
+<input class="form-control" type="text" name="q_{{ item.q.qid }}" value="{{ item.value|default:'' }}" maxlength="{{ item.q.config.max_length }}" {% if item.q.config.min_length %}minlength="{{ item.q.config.min_length }}"{% endif %} placeholder="Your answer" aria-label="{{ item.q.title }}">

@@ -1,0 +1,8 @@
+{% extends "errors/_error_base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block error %}
+<div class="mark-big warn"><i class="bi bi-shield-lock"></i></div>
+<h1>You can't open this page</h1>
+<p>{{ message|default:"You don't have permission to open this page." }}</p>
+<a class="btn btn-primary mt-2" href="{% if user.is_authenticated %}{% url 'surveys:dashboard' %}{% else %}{% url 'landing' %}{% endif %}">Go to {% if user.is_authenticated %}your dashboard{% else %}the home page{% endif %}</a>
+{% endblock %}

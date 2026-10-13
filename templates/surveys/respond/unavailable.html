@@ -1,0 +1,14 @@
+{% extends "surveys/respond/_outcome_base.html" %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block outcome %}
+<div class="outcome">
+  <div class="mark-big {% if reason == 'not_started' %}neutral{% else %}warn{% endif %}"><i class="bi {% if reason == 'not_started' %}bi-hourglass-split{% elif reason == 'limit_reached' %}bi-people-fill{% else %}bi-lock{% endif %}"></i></div>
+  <h1>{% if reason == 'draft' %}Not published{% elif reason == 'not_started' %}Not open yet{% elif reason == 'limit_reached' %}Response limit reached{% elif reason == 'results_private' %}Results are private{% else %}Not accepting responses{% endif %}</h1>
+  <p><strong>{{ survey.title }}</strong></p>
+  <p>{{ message }}</p>
+  {% if reason == 'not_started' and survey.settings.start_at %}<p class="small-print">Opens {{ survey.settings.start_at|date:"l, d M Y \a\t H:i" }}.</p>{% endif %}
+  {% if survey.settings.results_public and reason != 'results_private' and reason != 'draft' and reason != 'suspended' %}
+  <a class="btn btn-ghost mt-2" href="{% url 'surveys:public_results' survey.public_token %}">See the results</a>
+  {% endif %}
+</div>
+{% endblock %}

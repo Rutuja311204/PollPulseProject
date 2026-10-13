@@ -1,0 +1,72 @@
+{% extends "app_base.html" %}
+{% block title %}Settings · {{ survey.title }}{% endblock %}
+{% block page_head %}{% include "partials/_survey_head.html" %}{% endblock %}
+{% block tabs %}{% include "partials/_survey_tabs.html" with tab="settings" %}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-xl-8">
+    <form method="post" novalidate class="stack">
+      {% csrf_token %}
+      {% include "partials/_form_errors.html" with form=settings_form %}
+      <section class="panel panel-pad">
+        <h2 class="section-title">Title and description</h2>
+        {% include "partials/_field.html" with field=details_form.title %}
+        {% include "partials/_field.html" with field=details_form.description %}
+      </section>
+      <section class="panel panel-pad">
+        <h2 class="section-title">Who can respond</h2>
+        <div class="row">
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.access %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.identity %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.duplicate_protection %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.max_responses %}</div>
+        </div>
+        <p class="small-print mb-0">“One response per browser” is basic protection: someone can clear cookies or switch browsers. Use “one per account” when each answer must come from a different person.</p>
+      </section>
+      <section class="panel panel-pad">
+        <h2 class="section-title">Schedule</h2>
+        <div class="row">
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.start_at %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=settings_form.end_at %}</div>
+        </div>
+        <p class="small-print mb-0">Times are in {{ time_zone }}. Outside this window the survey link explains that it is not open.</p>
+      </section>
+      <section class="panel panel-pad">
+        <h2 class="section-title">Respondent experience</h2>
+        {% include "partials/_field.html" with field=settings_form.display_mode %}
+        {% include "partials/_check.html" with field=settings_form.allow_save_resume %}
+        {% include "partials/_check.html" with field=settings_form.allow_edit %}
+        {% include "partials/_check.html" with field=settings_form.results_public %}
+        <div class="mt-3">{% include "partials/_field.html" with field=settings_form.consent_text %}</div>
+        {% include "partials/_field.html" with field=settings_form.thank_you_message %}
+      </section>
+      <div><button class="btn btn-primary btn-lg" type="submit">Save settings</button></div>
+    </form>
+  </div>
+  <div class="col-xl-4">
+    <section class="panel" id="collaborators">
+      <div class="panel-head"><h2>Collaborators</h2></div>
+      <div class="panel-body">
+        <p class="small-print">Editors can change questions, settings and publish. Viewers can see results and export. Only the owner can archive, delete or manage people.</p>
+        <ul class="list-plain mb-3">
+          {% for c in survey.collaborators %}
+          <li><span><strong>{{ c.username }}</strong> <span class="role-chip">{{ c.role }}</span></span>
+            {% if survey.can.manage_collaborators %}
+            <form method="post" action="{% url 'surveys:collaborator_remove' survey.id c.user_id %}" data-confirm="Remove {{ c.username }} from this survey?">{% csrf_token %}
+              <button class="icon-btn danger" type="submit" aria-label="Remove {{ c.username }}"><i class="bi bi-x-lg"></i></button></form>
+            {% endif %}</li>
+          {% empty %}<li class="muted">Only you have access.</li>{% endfor %}
+        </ul>
+        {% if survey.can.manage_collaborators %}
+        <form method="post" action="{% url 'surveys:collaborator_add' survey.id %}" novalidate>
+          {% csrf_token %}
+          {% include "partials/_field.html" with field=collaborator_form.username %}
+          {% include "partials/_field.html" with field=collaborator_form.role %}
+          <button class="btn btn-ghost w-100" type="submit"><i class="bi bi-person-plus"></i>Add collaborator</button>
+        </form>
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

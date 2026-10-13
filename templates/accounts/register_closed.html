@@ -1,0 +1,7 @@
+{% extends "accounts/_auth_base.html" %}
+{% block title %}Registration closed{% endblock %}
+{% block auth %}
+<h1>Registration is closed</h1>
+<p class="sub">The administrators have paused new sign-ups. You can still answer public surveys, and existing users can sign in.</p>
+<a class="btn btn-primary" href="{% url 'accounts:login' %}">Sign in</a>
+{% endblock %}

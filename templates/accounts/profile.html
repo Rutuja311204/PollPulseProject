@@ -1,0 +1,44 @@
+{% extends "app_base.html" %}
+{% load pp %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}Profile and settings{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <section class="panel panel-pad text-center">
+      <div class="avatar avatar-lg mx-auto mb-3">{{ user|initial }}</div>
+      <h2 class="h5 mb-0">{{ user.first_name|default:user.username }}</h2>
+      <p class="small-print">@{{ user.username }} · member since {{ user.date_joined|date:"M Y" }}{% if user.is_staff %} · <span class="admin-badge">Administrator</span>{% endif %}</p>
+      {% if stats %}
+      <div class="metrics mt-3 text-start">
+        <div class="metric"><div class="metric-value">{{ stats.total }}</div><div class="metric-label">Surveys</div></div>
+        <div class="metric"><div class="metric-value">{{ stats.responses }}</div><div class="metric-label">Responses</div></div>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+  <div class="col-lg-8 stack">
+    <section class="panel panel-pad">
+      <h2 class="section-title">Account details</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}<input type="hidden" name="action" value="profile">
+        {% include "partials/_form_errors.html" with form=profile_form %}
+        <div class="row"><div class="col-md-6">{% include "partials/_field.html" with field=profile_form.first_name %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=profile_form.email %}</div></div>
+        <button class="btn btn-primary" type="submit">Save details</button>
+      </form>
+    </section>
+    <section class="panel panel-pad">
+      <h2 class="section-title">Change password</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}<input type="hidden" name="action" value="password">
+        {% include "partials/_form_errors.html" with form=password_form %}
+        {% include "partials/_field.html" with field=password_form.old_password %}
+        <div class="row"><div class="col-md-6">{% include "partials/_field.html" with field=password_form.new_password1 %}</div>
+          <div class="col-md-6">{% include "partials/_field.html" with field=password_form.new_password2 %}</div></div>
+        <button class="btn btn-ghost" type="submit">Change password</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
